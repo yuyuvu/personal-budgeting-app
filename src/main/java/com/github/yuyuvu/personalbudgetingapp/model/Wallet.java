@@ -1,4 +1,4 @@
-package dev.yuriymordashev.financemanagement.userdata;
+package com.github.yuyuvu.personalbudgetingapp.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

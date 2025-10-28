@@ -1,14 +1,16 @@
-package dev.yuriymordashev.financemanagement.userdata;
+package com.github.yuyuvu.personalbudgetingapp.model;
 
-import dev.yuriymordashev.financemanagement.applogic.DataPersistenceSystem;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class User {
     String username;
     String password;
     Wallet wallet;
 
     public User () {
-        this.wallet = DataPersistenceSystem.loadWalletDataFromFile(username+".json");
+        this.wallet = DataPersistenceService.loadUserdataFromFile(username+".json").getWallet();
     }
 
     public User (String username, String password) {
@@ -24,5 +26,9 @@ public class User {
     @Override
     public String toString() {
         return username;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
     }
 }

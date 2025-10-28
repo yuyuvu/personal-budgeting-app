@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "dev.yuriymordashev"
+group = "com.github.yuyuvu"
 version = "1.0-SNAPSHOT"
 
 //  указываем, что версия файлов скомпилированных классов должна быть совместима со всеми JRE, начиная с JRE 17
@@ -40,7 +40,7 @@ tasks.withType<JavaExec> {
 // указываем основной класс с main для MANIFEST.MF, а также то, что нам нужен far-jar со всеми зависимостями
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "dev.yuriymordashev.financemanagement.Main"
+        attributes["Main-Class"] = "com.github.yuyuvu.personalbudgetingapp.Main"
     }
     val dependencies = configurations.runtimeClasspath.get().map(::zipTree)
     from(dependencies)

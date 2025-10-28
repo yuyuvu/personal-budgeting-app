@@ -1,4 +1,4 @@
-package dev.yuriymordashev.financemanagement.applogic;
+package com.github.yuyuvu.personalbudgetingapp.presentation;
 
 public class ColorPrinter {
     private static final String RESET = "\033[0m";  // Text Reset
