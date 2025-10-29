@@ -1,6 +1,8 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
+
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
 public class AppMainMenu extends Menu {
@@ -20,26 +22,32 @@ public class AppMainMenu extends Menu {
 
     @Override
     public void handleUserInput() {
-        String currentInput = PersonalBudgetingApp.getUserInput().nextLine().strip();
-        switch (currentInput) {
-            case "1" -> {
-                println("");
+        getCurrentUserInput(); // складывается в переменную super.currentInput
+        try {
+            Menu.checkUserInputForAppGeneralCommands(currentInput);
+            switch (currentInput) {
+                case "1" -> {
+                    println("");
+                }
+                case "2" -> {
+                    println("");
+                }
+                case "3" -> {
+                    println("");
+                }
+                case "4" -> {
+                    println("");
+                }
+                case "5" -> {
+                    logOutOfCurrentUser();
+                }
+                default -> {
+                    printlnYellow("Некорректный ввод, введите цифру от 1 до 5.");
+                }
             }
-            case "2" -> {
-                println("");
-            }
-            case "3" -> {
-                println("");
-            }
-            case "4" -> {
-                println("");
-            }
-            case "5" -> {
-                logOutOfCurrentUser();
-            }
-            default -> {
-                printlnYellow("Некорректный ввод, введите цифру от 1 до 3.");
-            }
+        } catch (CancellationRequestedException e) {
+            printlnPurple(e.getMessage());
+            return;
         }
     }
 }

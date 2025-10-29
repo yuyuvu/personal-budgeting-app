@@ -4,19 +4,21 @@ import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
+import java.time.LocalDateTime;
+
 public class WalletOperationsService {
 
-    void addIncome(Wallet wallet, double amount) {
-
+    public static void addIncome(Wallet wallet, double amount, String category, LocalDateTime dateTime) {
+        wallet.getWalletOperations().add(wallet.new WalletOperation(amount, true, category, dateTime));
     }
 
-    void addExpense(Wallet wallet, double amount) {
-
+    public static void addExpense(Wallet wallet, double amount, String category, LocalDateTime dateTime) {
+        wallet.getWalletOperations().add(wallet.new WalletOperation(amount, false, category, dateTime));
     }
 
-    void sendMoneyToAnotherUser(Wallet from, String to, double amount) {
+    public static void sendMoneyToAnotherUser(Wallet from, String to, double amount) {
         User anotherUser = DataPersistenceService.loadUserdataFromFile(to);
-        this.addExpense(from, amount);
-        this.addIncome(anotherUser.getWallet(), amount);
+        addExpense(from, amount, "Переводы другим пользователям", LocalDateTime.now());
+        addIncome(anotherUser.getWallet(), amount, "Переводы другим пользователям", LocalDateTime.now());
     }
 }

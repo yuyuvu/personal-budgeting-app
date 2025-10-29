@@ -1,21 +1,23 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
-import com.github.yuyuvu.personalbudgetingapp.appservices.AuthorizationService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
-public class AuthorizationMenu extends Menu {
+public class AnalyticsMenu extends Menu {
 
     @Override
     public void showMenu() {
         println("""
                 
-                Меню авторизации:
-                1. Зарегистрироваться в системе.
-                2. Зайти в аккаунт имеющегося пользователя.
-                3. Выключить приложение.""");
+                Меню аналитики:
+                1. Вывод общей сводки.
+                2. Вывод сводки по доходам.
+                3. Вывод сводки по расходам.
+                4. Вывод сводки по бюджетам и остаткам.
+                5. Расширенная аналитика с фильтрацией по категориям, суммам или периодам.
+                6. Возврат в главное меню.""");
         printYellow("Введите номер желаемого действия: ");
     }
 
@@ -26,18 +28,25 @@ public class AuthorizationMenu extends Menu {
             Menu.checkUserInputForAppGeneralCommands(currentInput);
             switch (currentInput) {
                 case "1" -> {
-                    PersonalBudgetingApp.setCurrentAppUser(AuthorizationService.registerUser());
-                    PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
+                    println("");
                 }
                 case "2" -> {
-                    PersonalBudgetingApp.setCurrentAppUser(AuthorizationService.logInToAccount());
-                    PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
+                    println("");
                 }
                 case "3" -> {
-                    turnOffApplication();
+                    println("");
+                }
+                case "4" -> {
+                    println("");
+                }
+                case "5" -> {
+                    println("");
+                }
+                case "6" -> {
+                    PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
                 }
                 default -> {
-                    printlnYellow("Некорректный ввод, введите цифру от 1 до 3.");
+                    printlnYellow("Некорректный ввод, введите цифру от 1 до 6.");
                 }
             }
         } catch (CancellationRequestedException e) {

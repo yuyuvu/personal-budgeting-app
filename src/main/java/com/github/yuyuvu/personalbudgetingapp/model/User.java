@@ -1,18 +1,17 @@
 package com.github.yuyuvu.personalbudgetingapp.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class User {
-    String username;
-    String password;
-    Wallet wallet;
+    private String username;
+    private String password;
+    private Wallet wallet;
 
-    public User () {
-        this.wallet = DataPersistenceService.loadUserdataFromFile(username+".json").getWallet();
-    }
+    // Данный конструктор используется только библиотекой Jackson для десериализации
+    public User() {}
 
+    // Данный конструктор используется при создании нового пользователя в AuthorizationService
     public User (String username, String password) {
         this.username = username;
         this.password = password;
@@ -22,13 +21,17 @@ public class User {
     public String getUsername() {
         return username;
     }
-    
-    @Override
-    public String toString() {
-        return username;
-    }
 
     public Wallet getWallet() {
         return wallet;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", wallet=" + wallet +
+                '}';
     }
 }

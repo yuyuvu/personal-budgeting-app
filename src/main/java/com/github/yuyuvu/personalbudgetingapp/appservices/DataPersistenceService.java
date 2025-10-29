@@ -7,16 +7,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
 public class DataPersistenceService {
     static Path relationalPathToUserdataFiles = Path.of("userdata_files");
+    static String dataFileExtension = ".json";
     static ObjectMapper jsonObjectMapper = new ObjectMapper();
 
     static {
@@ -30,8 +33,9 @@ public class DataPersistenceService {
 
     public static User loadUserdataFromFile(String user) {
         User readUser;
-        try (FileReader fr = new FileReader(relationalPathToUserdataFiles.resolve(user+".json").toFile())) {
+        try (FileReader fr = new FileReader(relationalPathToUserdataFiles.resolve(user+dataFileExtension).toFile())) {
             readUser = jsonObjectMapper.readValue(fr, User.class);
+            // println(readUser.toString());
         } catch (IOException e) {
             printlnRed("Проблемы с чтением информации из файла пользователя.");
             throw new RuntimeException(e);
@@ -39,9 +43,8 @@ public class DataPersistenceService {
         return readUser;
     }
 
-
     public static void saveUserdataToFile(User user) {
-        try (FileWriter fw = new FileWriter(relationalPathToUserdataFiles.resolve(user.getUsername()+".json").toFile())) {
+        try (FileWriter fw = new FileWriter(relationalPathToUserdataFiles.resolve(user.getUsername()+dataFileExtension).toFile())) {
             jsonObjectMapper.writeValue(fw, user);
         } catch (IOException e) {
             printlnRed("Проблемы с сохранением информации в файл пользователя.");
@@ -49,19 +52,37 @@ public class DataPersistenceService {
         }
     }
 
-    public static HashSet<String> getRegisteredUsernames() {
+    public static HashMap<String, String> getRegisteredUsernamesAndPasswords() {
         try (Stream<Path> files = Files.list(relationalPathToUserdataFiles)) {
-            return files.map(Path::getFileName).map(Path::toString).map(s -> s.substring(0, s.lastIndexOf(".")))
-                    .collect(Collectors.toCollection(HashSet::new));
+            return (HashMap<String, String>) files.map(file -> {
+                        try {
+                            return Files.readString(file);
+                        } catch (IOException e) {
+                            printlnRed("Проблемы с чтением файлов с данными зарегистрированных пользователей.");
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .map(fileContents -> {
+                        try {
+                            return Map.entry(jsonObjectMapper.readTree(fileContents).get("username").asString(), jsonObjectMapper.readTree(fileContents).get("password").asString());
+                        } catch (JacksonException | NullPointerException e) {
+                            printlnRed("Проблемы с парсингом json-файла отдельного пользователя для получения имён и паролей зарегистрированных пользователей. \nФайлы пользователей могли быть не сохранены при экстренном завершении программы. Удалите пустые файлы в ./userdata_files. \nМожно продолжать работу.");
+                        }
+                        return Map.entry("app_placeholder", "sdhjaksduqieKFDSJHV91yOIAd81ljFOIAs123");
+                    })
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (IOException e) {
             printlnRed("Проблемы с получением имён зарегистрированных пользователей.");
+            throw new RuntimeException(e);
+        } catch (ClassCastException e) {
+            printlnRed("Проблемы с преобразованием Map в HashMap при загрузке имён и паролей зарегистрированных пользователей.");
             throw new RuntimeException(e);
         }
     }
 
     public static void makeNewUserWalletFile(String inputNewUsername) {
         try {
-            Path potentialPath = relationalPathToUserdataFiles.resolve(inputNewUsername+".json");
+            Path potentialPath = relationalPathToUserdataFiles.resolve(inputNewUsername+dataFileExtension);
             if (!Files.exists(potentialPath)) {
                 Files.createFile(potentialPath);
             }
