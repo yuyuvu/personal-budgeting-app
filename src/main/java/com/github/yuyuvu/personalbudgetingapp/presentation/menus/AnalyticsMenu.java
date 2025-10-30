@@ -1,7 +1,9 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import com.github.yuyuvu.personalbudgetingapp.domainservices.AnalyticsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
+import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
@@ -16,31 +18,36 @@ public class AnalyticsMenu extends Menu {
                 2. Вывод сводки по доходам.
                 3. Вывод сводки по расходам.
                 4. Вывод сводки по бюджетам и остаткам.
-                5. Расширенная аналитика с фильтрацией по категориям, суммам или периодам.
+                5. Вывод списков операций и расширенная аналитика с фильтрацией по категориям, суммам или периодам.
                 6. Возврат в главное меню.""");
         printYellow("Введите номер желаемого действия: ");
     }
 
     @Override
     public void handleUserInput() {
-        getCurrentUserInput(); // складывается в переменную super.currentInput
+        requestUserInput(); // складывается в переменную super.currentInput
         try {
-            Menu.checkUserInputForAppGeneralCommands(currentInput);
-            switch (currentInput) {
+            Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+            Wallet wallet = PersonalBudgetingApp.getCurrentAppUser().getWallet();
+            switch (getCurrentUserInput()) {
                 case "1" -> {
-                    println("");
+                    skipLine();
+                    AnalyticsService.printTotalSummary(wallet);
                 }
                 case "2" -> {
-                    println("");
+                    skipLine();
+                    AnalyticsService.printIncomeSummary(wallet);
                 }
                 case "3" -> {
-                    println("");
+                    skipLine();
+                    AnalyticsService.printExpensesSummary(wallet);
                 }
                 case "4" -> {
-                    println("");
+                    skipLine();
+                    AnalyticsService.printBudgetCategoriesAndLimitsSummary(wallet);
                 }
                 case "5" -> {
-                    println("");
+                    println("Не добавлено.");
                 }
                 case "6" -> {
                     PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());

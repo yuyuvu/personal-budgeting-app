@@ -21,10 +21,10 @@ public class AuthorizationMenu extends Menu {
 
     @Override
     public void handleUserInput() {
-        getCurrentUserInput(); // складывается в переменную super.currentInput
+        requestUserInput(); // складывается в переменную super.currentInput
         try {
-            Menu.checkUserInputForAppGeneralCommands(currentInput);
-            switch (currentInput) {
+            Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+            switch (getCurrentUserInput()) {
                 case "1" -> {
                     PersonalBudgetingApp.setCurrentAppUser(AuthorizationService.registerUser());
                     PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
@@ -34,7 +34,7 @@ public class AuthorizationMenu extends Menu {
                     PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
                 }
                 case "3" -> {
-                    turnOffApplication();
+                    turnOffApplication(true);
                 }
                 default -> {
                     printlnYellow("Некорректный ввод, введите цифру от 1 до 3.");

@@ -36,6 +36,7 @@ public class DataPersistenceService {
         try (FileReader fr = new FileReader(relationalPathToUserdataFiles.resolve(user+dataFileExtension).toFile())) {
             readUser = jsonObjectMapper.readValue(fr, User.class);
             // println(readUser.toString());
+            // println(readUser.getWallet().toString());
         } catch (IOException e) {
             printlnRed("Проблемы с чтением информации из файла пользователя.");
             throw new RuntimeException(e);

@@ -27,7 +27,7 @@ public class AuthorizationService {
             String tempNewUsername = PersonalBudgetingApp.getUserInput().nextLine().strip();
 
             Menu.checkUserInputForAppGeneralCommands(tempNewUsername);
-            if (tempNewUsername == null || tempNewUsername.isEmpty() || tempNewUsername.contains(" ") || !tempNewUsername.matches("^[a-zA-Z0-9]+$")) {
+            if (tempNewUsername.isBlank() || tempNewUsername.contains(" ") || !tempNewUsername.matches("^[a-zA-Z0-9]+$")) {
                 printlnRed("Введено некорректное имя пользователя, введите имя из как минимум одного символа (допустимы только цифры и латиница) без пробелов.");
                 continue;
             }
@@ -45,7 +45,7 @@ public class AuthorizationService {
             String tempNewPassword = PersonalBudgetingApp.getUserInput().nextLine().strip();
 
             Menu.checkUserInputForAppGeneralCommands(tempNewPassword);
-            if (tempNewPassword == null || tempNewPassword.isEmpty() || tempNewPassword.contains(" ")) {
+            if (tempNewPassword.isBlank() || tempNewPassword.contains(" ")) {
                 printlnRed("Введён некорректный пароль, введите пароль из как минимум одного символа без пробелов.");
                 continue;
             }

@@ -8,14 +8,14 @@ public class User {
     private String password;
     private Wallet wallet;
 
-    // Данный конструктор используется только библиотекой Jackson для десериализации
-    public User() {}
+    /** Данный конструктор должен использоваться только библиотекой Jackson для десериализации */
+    private User() {}
 
-    // Данный конструктор используется при создании нового пользователя в AuthorizationService
+    /** Данный конструктор используется при создании нового пользователя в AuthorizationService */
     public User (String username, String password) {
         this.username = username;
         this.password = password;
-        this.wallet = new Wallet();
+        this.wallet = new Wallet(false);
     }
 
     public String getUsername() {

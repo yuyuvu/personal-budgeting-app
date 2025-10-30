@@ -8,26 +8,34 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*
 
 public abstract class Menu {
 
-    protected String currentInput;
+    private String currentInput;
 
     public abstract void showMenu();
     public abstract void handleUserInput();
 
-    protected static void turnOffApplication() {
+    protected static void turnOffApplication(boolean printMessages) {
         // TODO: Data Persistence
-        printlnGreen("Выключаем приложение...");
+        if (printMessages) {printlnGreen("Выключаем приложение...");}
         System.exit(0);
     }
 
-    protected static void logOutOfCurrentUser() {
-        printlnGreen("Осуществляется выход из аккаунта текущего пользователя...");
-        DataPersistenceService.saveUserdataToFile(PersonalBudgetingApp.getCurrentAppUser());
-        PersonalBudgetingApp.setCurrentAppUser(null);
-        PersonalBudgetingApp.setCurrentMenu(new AuthorizationMenu());
+    protected static void logOutOfCurrentUser(boolean printMessages) {
+        if (PersonalBudgetingApp.getCurrentAppUser() != null) {
+            if (printMessages) {printlnGreen("Осуществляется выход из аккаунта текущего пользователя...");}
+            DataPersistenceService.saveUserdataToFile(PersonalBudgetingApp.getCurrentAppUser());
+            PersonalBudgetingApp.setCurrentAppUser(null);
+            PersonalBudgetingApp.setCurrentMenu(new AuthorizationMenu());
+        } else {
+            if (printMessages) {printlnRed("Невозможно выйти из аккаунта без предварительной авторизации.");}
+        }
     }
 
-    protected void getCurrentUserInput() {
+    protected void requestUserInput() {
         currentInput = PersonalBudgetingApp.getUserInput().nextLine().strip();
+    }
+
+    protected String getCurrentUserInput() {
+        return currentInput;
     }
 
     public static void checkUserInputForAppGeneralCommands(String userInput) throws CancellationRequestedException {
@@ -45,12 +53,12 @@ public abstract class Menu {
                 throw new CancellationRequestedException();
             }
             case "--logout" -> {
-                logOutOfCurrentUser();
+                logOutOfCurrentUser(true);
                 throw new CancellationRequestedException();
             }
             case "--turnoff" -> {
-                logOutOfCurrentUser();
-                turnOffApplication();
+                logOutOfCurrentUser(false);
+                turnOffApplication(true);
             }
         }
     }

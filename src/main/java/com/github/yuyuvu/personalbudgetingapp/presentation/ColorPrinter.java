@@ -66,4 +66,8 @@ public class ColorPrinter {
     public static void skipLine() {
         System.out.println();
     }
+
+    public static String resetColor() {
+        return RESET;
+    }
 }
