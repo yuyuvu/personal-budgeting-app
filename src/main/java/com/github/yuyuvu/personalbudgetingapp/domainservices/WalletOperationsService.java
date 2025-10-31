@@ -7,6 +7,7 @@ import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public class WalletOperationsService {
 
@@ -80,5 +81,21 @@ public class WalletOperationsService {
                 .filter(wo -> wo.getDateTime().isAfter(periodStart) && wo.getDateTime().isBefore(periodEnd))
                 .collect(Collectors.toCollection(ArrayList::new)));
         return result;
+    }
+
+    public static ArrayList<Wallet.WalletOperation> getWalletOperationsByTypeAndPeriod(Wallet wallet, boolean isIncome, LocalDateTime periodStart, LocalDateTime periodEnd) {
+        return getWalletOperationsByPeriod(wallet, periodStart, periodEnd).stream()
+                .filter(wo -> wo.isIncome() == isIncome)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public static ArrayList<Wallet.WalletOperation> getWalletOperationsByTypeAndPeriodAndCategory(Wallet wallet, boolean isIncome, String category, LocalDateTime periodStart, LocalDateTime periodEnd) {
+        return getWalletOperationsByTypeAndPeriod(wallet, isIncome, periodStart, periodEnd).stream()
+                .filter(wo -> wo.getCategory().equals(category))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public static double getWalletOperationsAmountsSum(ArrayList<Wallet.WalletOperation> woList) {
+        return woList.stream().mapToDouble(Wallet.WalletOperation::getAmount).sum();
     }
 }

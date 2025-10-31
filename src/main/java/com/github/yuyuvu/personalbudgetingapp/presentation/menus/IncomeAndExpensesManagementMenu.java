@@ -21,8 +21,9 @@ public class IncomeAndExpensesManagementMenu extends Menu {
                 Меню управления доходами и расходами:
                 1. Добавление дохода.
                 2. Добавление расхода.
-                3. Удаление ранее добавленного дохода или расхода.
-                4. Возврат в главное меню.""");
+                3. Перевод средств другому пользователю.
+                4. Удаление ранее добавленного дохода или расхода.
+                5. Возврат в главное меню.""");
         printYellow("Введите номер желаемого действия: ");
     }
 
@@ -40,13 +41,16 @@ public class IncomeAndExpensesManagementMenu extends Menu {
                     handleAddWalletOperation(wallet, false);
                 }
                 case "3" -> {
-                    handleWalletOperationRemoval(wallet);
+                    handleTransferToAnotherUser(wallet);
                 }
                 case "4" -> {
+                    handleWalletOperationRemoval(wallet);
+                }
+                case "5" -> {
                     PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
                 }
                 default -> {
-                    printlnYellow("Некорректный ввод, введите цифру от 1 до 4.");
+                    printlnYellow("Некорректный ввод, введите цифру от 1 до 5.");
                 }
             }
         } catch (CancellationRequestedException e) {
@@ -113,29 +117,7 @@ public class IncomeAndExpensesManagementMenu extends Menu {
 
         // Автоматическое или ручное указание даты операции
         if (doesUserWantToSpecifyDate) {
-            do {
-                try {
-                    printCyan("Укажите дату в формате \"день месяц год час:минуты\" (например, 05 05 2025 00:05): ");
-                    requestUserInput();
-                    Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
-                    if (getCurrentUserInput().matches("^\\d{2}\\s+\\d{2}\\s+\\d{4}\\s+\\d{2}:\\d{2}$")) {
-                        String[] splittedDateTime = getCurrentUserInput().split("\\s");
-                        String[] splittedTime = splittedDateTime[3].split(":");
-                        dateTime = LocalDateTime.of(Integer.parseInt(splittedDateTime[2]),
-                                Integer.parseInt(splittedDateTime[1]),
-                                Integer.parseInt(splittedDateTime[0]),
-                                Integer.parseInt(splittedTime[0]),
-                                Integer.parseInt(splittedTime[1]));
-                        break;
-                    } else {
-                        throw new IllegalArgumentException();
-                    }
-                } catch (IllegalArgumentException e) {
-                    printlnRed("Дата введена в некорректном формате. Повторите ввод.");
-                } catch (DateTimeException e) {
-                    printlnRed("Введены невозможные значения для даты или времени. Повторите ввод.");
-                }
-            } while (true);
+            dateTime = requestDateFromUser("");
         }
 
         // Добавление операции
@@ -165,5 +147,9 @@ public class IncomeAndExpensesManagementMenu extends Menu {
                 printlnRed("Id операции должен содержать только числа.");
             }
         } while (true);
+    }
+
+    private void handleTransferToAnotherUser(Wallet wallet) throws CancellationRequestedException {
+        return;
     }
 }

@@ -4,6 +4,7 @@ import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
@@ -90,5 +91,34 @@ public abstract class Menu {
         fileName.append("_").append(currentDateTime.getDayOfMonth()).append(currentDateTime.getMonthValue()).append(currentDateTime.getYear());
         fileName.append("_").append(currentDateTime.getHour()).append("_").append(currentDateTime.getMinute()).append("_").append(currentDateTime.getSecond());
         return fileName.toString();
+    }
+
+    protected LocalDateTime requestDateFromUser(String optionalMessage) throws CancellationRequestedException {
+        LocalDateTime dateTime;
+        do {
+            try {
+                printYellow(optionalMessage);
+                printCyan("Укажите дату в формате \"день месяц год час:минуты\" (например, 05 05 2025 00:05): ");
+                requestUserInput();
+                Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+                if (getCurrentUserInput().matches("^\\d{2}\\s+\\d{2}\\s+\\d{4}\\s+\\d{2}:\\d{2}$")) {
+                    String[] splittedDateTime = getCurrentUserInput().split("\\s");
+                    String[] splittedTime = splittedDateTime[3].split(":");
+                    dateTime = LocalDateTime.of(Integer.parseInt(splittedDateTime[2]),
+                            Integer.parseInt(splittedDateTime[1]),
+                            Integer.parseInt(splittedDateTime[0]),
+                            Integer.parseInt(splittedTime[0]),
+                            Integer.parseInt(splittedTime[1]));
+                    break;
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            } catch (IllegalArgumentException e) {
+                printlnRed("Дата введена в некорректном формате. Повторите ввод.");
+            } catch (DateTimeException e) {
+                printlnRed("Введены невозможные значения для даты или времени. Повторите ввод.");
+            }
+        } while (true);
+        return dateTime;
     }
 }

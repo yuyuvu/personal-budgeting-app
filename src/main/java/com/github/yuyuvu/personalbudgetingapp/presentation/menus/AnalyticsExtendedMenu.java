@@ -8,6 +8,7 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentE
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -103,23 +104,7 @@ public class AnalyticsExtendedMenu extends Menu {
 
     private String handleRequestByCategories(Wallet wallet) throws CancellationRequestedException {
         String[] requestedCategories;
-        boolean isIncome;
-        loop1: do {
-            printCyan("Вывести результаты по доходам (1) или по расходам (2)? (введите 1 или 2): ");
-            requestUserInput();
-            Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
-            switch (getCurrentUserInput().toLowerCase()) {
-                case "1"  -> {
-                    isIncome = true;
-                    break loop1;
-                }
-                case "2"   -> {
-                    isIncome = false;
-                    break loop1;
-                }
-                default -> printlnRed("Некорректный ввод. Введите \"1\" или \"2\".");
-            }
-        } while (true);
+        boolean isIncome = requestIncomeOrExpenses();
         do {
             try {
                 printCyan(String.format("Введите названия категорий %s, по которым требуется вывод. Указывайте их в кавычках и через пробел: ", (isIncome ? "дохода" : "расхода")));
@@ -144,7 +129,29 @@ public class AnalyticsExtendedMenu extends Menu {
         return AnalyticsService.makeSummaryByCategories(wallet, isIncome, new ArrayList<>(Arrays.asList(requestedCategories)));
     }
 
-    private String handleRequestByPeriod(Wallet wallet) {
-        return ""; //AnalyticsService.makeSummaryByPeriod(wallet, isIncome, periodStart, periodEnd);
+    private String handleRequestByPeriod(Wallet wallet) throws CancellationRequestedException {
+        LocalDateTime periodStart = requestDateFromUser("Введите дату и время начала периода фильтрации (включительно).\n");
+        LocalDateTime periodEnd = requestDateFromUser("Введите дату и время конца периода фильтрации (включительно).\n");
+        return AnalyticsService.makeSummaryByPeriod(wallet, periodStart, periodEnd);
+    }
+
+    private boolean requestIncomeOrExpenses() throws CancellationRequestedException {
+        boolean isIncome;
+        do {
+            printCyan("Вывести результаты по доходам (1) или по расходам (2)? (введите 1 или 2): ");
+            requestUserInput();
+            Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+            switch (getCurrentUserInput().toLowerCase()) {
+                case "1"  -> {
+                    isIncome = true;
+                    return isIncome;
+                }
+                case "2"   -> {
+                    isIncome = false;
+                    return isIncome;
+                }
+                default -> printlnRed("Некорректный ввод. Введите \"1\" или \"2\".");
+            }
+        } while (true);
     }
 }
