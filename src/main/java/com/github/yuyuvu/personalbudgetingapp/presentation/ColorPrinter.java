@@ -61,6 +61,28 @@ public class ColorPrinter {
         System.out.println(message);
     }
 
+    // возврат окрашенной строки
+
+    public static String paintYellow(String message) {
+        return YELLOW + message + RESET;
+    }
+
+    public static String paintGreen(String message) {
+        return GREEN + message + RESET;
+    }
+
+    public static String paintRed(String message) {
+        return  RED + message + RESET;
+    }
+
+    public static String paintCyan(String message) {
+        return CYAN + message + RESET;
+    }
+
+    public static String paintPurple(String message) {
+        return PURPLE + message + RESET;
+    }
+
     // пропуск строки
 
     public static void skipLine() {

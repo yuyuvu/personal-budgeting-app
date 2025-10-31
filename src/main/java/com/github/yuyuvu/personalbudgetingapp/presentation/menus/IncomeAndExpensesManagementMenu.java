@@ -60,7 +60,7 @@ public class IncomeAndExpensesManagementMenu extends Menu {
         double amount;
         LocalDateTime dateTime = LocalDateTime.now();
 
-        // Получение категории дохода
+        // Получение категории операции
         printCyan(String.format("Введите название категории %s: ", (isIncome ? "дохода" : "расхода")));
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());

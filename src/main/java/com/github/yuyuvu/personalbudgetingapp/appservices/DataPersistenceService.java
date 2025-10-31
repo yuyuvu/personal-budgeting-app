@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,7 +20,9 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*
 
 public class DataPersistenceService {
     static Path relationalPathToUserdataFiles = Path.of("userdata_files");
+    static Path relationalPathToAnalyticsReportsFiles = Path.of("analytics_reports");
     static String dataFileExtension = ".json";
+    //static String reportsFilesExtension = ".txt";
     static ObjectMapper jsonObjectMapper = new ObjectMapper();
 
     static {
@@ -90,6 +93,14 @@ public class DataPersistenceService {
         } catch (IOException e) {
             printlnRed("Проблемы с созданием файла нового пользователя.");
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void saveAnalyticsReportToFile(String fileContent, String fileName, String fileExtension) {
+        try {
+            Files.write(relationalPathToAnalyticsReportsFiles.resolve(fileName+fileExtension), fileContent.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            printlnRed("Проблемы с сохранением отчёта в файл.");
         }
     }
 }
