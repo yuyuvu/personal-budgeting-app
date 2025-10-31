@@ -42,7 +42,7 @@ public class DataPersistenceService {
             // println(readUser.toString());
             // println(readUser.getWallet().toString());
         } catch (IOException e) {
-            printlnRed("Проблемы с чтением информации из файла пользователя.");
+            printlnRed("Проблемы с чтением информации из файла пользователя " + user + ".");
             throw new RuntimeException(e);
         }
         return readUser;

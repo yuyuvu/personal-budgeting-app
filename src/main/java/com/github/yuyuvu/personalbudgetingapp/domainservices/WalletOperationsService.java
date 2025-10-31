@@ -23,10 +23,11 @@ public class WalletOperationsService {
         return wallet.getWalletOperations().removeIf(wo -> wo.getId() == id);
     }
 
-    public static void sendMoneyToAnotherUser(Wallet from, String to, double amount) {
+    public static void transferMoneyToAnotherUser(User from, String to, double amount) {
         User anotherUser = DataPersistenceService.loadUserdataFromFile(to);
-        addExpense(from, amount, "переводы другим пользователям", LocalDateTime.now());
-        addIncome(anotherUser.getWallet(), amount, "переводы от других пользователей", LocalDateTime.now());
+        addExpense(from.getWallet(), amount, ("переводы пользователю " + anotherUser.getUsername()).toLowerCase(), LocalDateTime.now());
+        addIncome(anotherUser.getWallet(), amount, ("переводы от пользователя " + from.getUsername()).toLowerCase(), LocalDateTime.now());
+        DataPersistenceService.saveUserdataToFile(anotherUser);
     }
 
 

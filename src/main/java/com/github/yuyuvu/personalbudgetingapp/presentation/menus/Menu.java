@@ -24,7 +24,7 @@ public abstract class Menu {
 
     protected static void logOutOfCurrentUser(boolean printMessages) {
         if (PersonalBudgetingApp.getCurrentAppUser() != null) {
-            if (printMessages) {printlnGreen("Осуществляется выход из аккаунта текущего пользователя...");}
+            if (printMessages) {printlnGreen(String.format("Осуществляется выход из аккаунта пользователя %s...", PersonalBudgetingApp.getCurrentAppUser().getUsername()));}
             DataPersistenceService.saveUserdataToFile(PersonalBudgetingApp.getCurrentAppUser());
             PersonalBudgetingApp.setCurrentAppUser(null);
             PersonalBudgetingApp.setCurrentMenu(new AuthorizationMenu());

@@ -1,13 +1,12 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import com.github.yuyuvu.personalbudgetingapp.appservices.AuthorizationService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.WalletOperationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
+import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
-import javax.swing.*;
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
@@ -150,6 +149,52 @@ public class IncomeAndExpensesManagementMenu extends Menu {
     }
 
     private void handleTransferToAnotherUser(Wallet wallet) throws CancellationRequestedException {
-        return;
+        double amount;
+        String anotherUser;
+
+        // Получение имени получателя перевода
+        while (true) {
+            try {
+                if (wallet.getBalance() <= 0.0) {
+                    printlnPurple("Обратите внимание: вы собираетесь зафиксировать перевод, уже имея отрицательный или нулевой баланс.");
+                }
+
+                printCyan("Введите имя пользователя (без учёта регистра), для которого предназначается перевод: ");
+                requestUserInput();
+                Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+
+                if (PersonalBudgetingApp.getCurrentAppUser().getUsername().equalsIgnoreCase(getCurrentUserInput())) {
+                    throw new CheckedIllegalArgumentException("Нельзя переводить средства самому себе.");
+                }
+                if (!AuthorizationService.checkUserExistenceIrrespectiveOfCase(getCurrentUserInput())) {
+                    throw new CheckedIllegalArgumentException("Пользователя с указанным именем не существует. Повторите ввод.");
+                }
+
+                anotherUser = getCurrentUserInput().toLowerCase();
+                break;
+            } catch (CheckedIllegalArgumentException e) {
+                printlnRed(e.getMessage());
+            }
+        }
+
+        // Получение суммы перевода
+        while (true) {
+            try {
+                printCyan(String.format("Введите сумму перевода для пользователя \"%s\": ", anotherUser));
+                requestUserInput();
+                Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+                amount = Double.parseDouble(getCurrentUserInput());
+                if (amount <= 0) throw new CheckedIllegalArgumentException("Сумма перевода должна быть больше нуля. Повторите ввод.");
+                break;
+            } catch (NumberFormatException e) {
+                printlnRed("Введено не число. Повторите ввод.");
+            } catch (CheckedIllegalArgumentException e) {
+                printlnRed(e.getMessage());
+            }
+        }
+
+        // Перевод
+        WalletOperationsService.transferMoneyToAnotherUser(PersonalBudgetingApp.getCurrentAppUser(), anotherUser, amount);
+        printlnGreen(String.format("Перевод пользователю \"%s\" на сумму %.2f успешно осуществлён!", anotherUser, amount));
     }
 }

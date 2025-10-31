@@ -27,11 +27,11 @@ public class AuthorizationService {
             String tempNewUsername = PersonalBudgetingApp.getUserInput().nextLine().strip();
 
             Menu.checkUserInputForAppGeneralCommands(tempNewUsername);
-            if (tempNewUsername.isBlank() || tempNewUsername.contains(" ") || !tempNewUsername.matches("^[a-zA-Z0-9]+$")) {
-                printlnRed("Введено некорректное имя пользователя, введите имя из как минимум одного символа (допустимы только цифры и латиница) без пробелов.");
+            if (tempNewUsername.isBlank() || tempNewUsername.contains(" ") || !tempNewUsername.matches("^[a-zA-Z0-9]{3,}$")) {
+                printlnRed("Введено некорректное имя пользователя, введите имя из как минимум трёх символов (допустимы только цифры и латиница) без пробелов.");
                 continue;
             }
-            if (checkUserExistence(tempNewUsername)) {
+            if (checkUserExistenceIrrespectiveOfCase(tempNewUsername)) {
                 printlnRed("Такой пользователь уже существует. Введите другое имя пользователя.");
                 continue;
             }
@@ -45,8 +45,8 @@ public class AuthorizationService {
             String tempNewPassword = PersonalBudgetingApp.getUserInput().nextLine().strip();
 
             Menu.checkUserInputForAppGeneralCommands(tempNewPassword);
-            if (tempNewPassword.isBlank() || tempNewPassword.contains(" ")) {
-                printlnRed("Введён некорректный пароль, введите пароль из как минимум одного символа без пробелов.");
+            if (tempNewPassword.isBlank() || tempNewPassword.contains(" ") || tempNewPassword.length() < 3) {
+                printlnRed("Введён некорректный пароль, введите пароль из как минимум трёх символов без пробелов.");
                 continue;
             }
 
@@ -64,7 +64,7 @@ public class AuthorizationService {
         String inputExistingUsername;
 
         do {
-            printCyan("Введите имя пользователя (логин): ");
+            printCyan("Введите имя пользователя (логин) с учётом регистра: ");
             String tempExistingUsername = PersonalBudgetingApp.getUserInput().nextLine().strip();
 
             Menu.checkUserInputForAppGeneralCommands(tempExistingUsername);
@@ -95,5 +95,14 @@ public class AuthorizationService {
 
     public static boolean checkUserExistence(String username) {
         return loadedUsernamesAndPasswords.containsKey(username);
+    }
+
+    public static boolean checkUserExistenceIrrespectiveOfCase(String username) {
+        for (String key : loadedUsernamesAndPasswords.keySet()) {
+            if (key.equalsIgnoreCase(username)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
