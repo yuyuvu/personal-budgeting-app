@@ -42,7 +42,7 @@ public class Wallet {
         private String category;
         private LocalDateTime dateTime;
 
-        public double getId() {
+        public long getId() {
             return id;
         }
 
@@ -115,6 +115,14 @@ public class Wallet {
 
     public ArrayList<WalletOperation> getWalletOperations() {
         return walletOperations;
+    }
+
+    public ArrayList<WalletOperation> getIncomeWalletOperations() {
+        return walletOperations.stream().filter(WalletOperation::isIncome).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ArrayList<WalletOperation> getExpensesWalletOperations() {
+        return walletOperations.stream().filter(wo -> !wo.isIncome()).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public HashSet<String> getWalletOperationsExpensesCategories() {

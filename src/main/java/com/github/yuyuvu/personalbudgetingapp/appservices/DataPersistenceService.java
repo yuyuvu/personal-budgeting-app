@@ -28,8 +28,9 @@ public class DataPersistenceService {
     static {
         try {
             Files.createDirectories(relationalPathToUserdataFiles);
+            Files.createDirectories(relationalPathToAnalyticsReportsFiles);
         } catch (IOException e) {
-            printlnRed("Проблемы с созданием директории для пользовательских данных.");
+            printlnRed("Проблемы с созданием директорий для хранения пользовательских данных и сохранения отчётов.");
             throw new RuntimeException(e);
         }
     }
@@ -96,11 +97,13 @@ public class DataPersistenceService {
         }
     }
 
-    public static void saveAnalyticsReportToFile(String fileContent, String fileName, String fileExtension) {
+    public static String saveAnalyticsReportToFile(String fileContent, String fileName, String fileExtension) throws IOException {
+        Path pathWhereSave = relationalPathToAnalyticsReportsFiles.resolve(fileName+fileExtension);
         try {
-            Files.write(relationalPathToAnalyticsReportsFiles.resolve(fileName+fileExtension), fileContent.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(pathWhereSave, fileContent.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            printlnRed("Проблемы с сохранением отчёта в файл.");
+            throw new IOException("Проблемы с сохранением отчёта в файл.");
         }
+        return pathWhereSave.toString();
     }
 }

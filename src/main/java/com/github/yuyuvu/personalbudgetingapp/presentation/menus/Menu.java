@@ -4,6 +4,8 @@ import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
+import java.time.LocalDateTime;
+
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
 public abstract class Menu {
@@ -61,5 +63,32 @@ public abstract class Menu {
                 turnOffApplication(true);
             }
         }
+    }
+
+    protected String requestReportFormat() throws CancellationRequestedException {
+        do {
+            printCyan("Вывести результат в консоль (1) или сохранить в файл (2)? (введите 1 или 2): ");
+            requestUserInput();
+            Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
+            switch (getCurrentUserInput().toLowerCase()) {
+                case "1"  -> {
+                    return "";
+                }
+                case "2"   -> {
+                    return ".txt";
+                }
+                default -> printlnRed("Некорректный ввод. Введите \"1\" или \"2\".");
+            }
+        } while (true);
+    }
+
+    protected String makeFilenameForReportFile(String reportVariant) throws CancellationRequestedException {
+        StringBuilder fileName = new StringBuilder();
+        fileName.append(reportVariant);
+        fileName.append("_").append(PersonalBudgetingApp.getCurrentAppUser().getUsername());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        fileName.append("_").append(currentDateTime.getDayOfMonth()).append(currentDateTime.getMonthValue()).append(currentDateTime.getYear());
+        fileName.append("_").append(currentDateTime.getHour()).append("_").append(currentDateTime.getMinute()).append("_").append(currentDateTime.getSecond());
+        return fileName.toString();
     }
 }

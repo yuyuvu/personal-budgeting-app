@@ -83,6 +83,15 @@ public class ColorPrinter {
         return PURPLE + message + RESET;
     }
 
+    public static String deleteColorsFromString(String content) {
+        return content.replace(YELLOW, "")
+                .replace(GREEN, "")
+                .replace(RED, "")
+                .replace(CYAN, "")
+                .replace(PURPLE, "")
+                .replace(RESET, "");
+    }
+
     // пропуск строки
 
     public static void skipLine() {

@@ -1,9 +1,14 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.AnalyticsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
@@ -25,30 +30,59 @@ public class AnalyticsMenu extends Menu {
 
     @Override
     public void handleUserInput() {
+        String displayedUserNameForReports = "Отчёт для пользователя: " + PersonalBudgetingApp.getCurrentAppUser().getUsername() + ".\n";
+        String pathToReportFile;
         requestUserInput(); // складывается в переменную super.currentInput
         try {
             Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
             Wallet wallet = PersonalBudgetingApp.getCurrentAppUser().getWallet();
             switch (getCurrentUserInput()) {
                 case "1" -> {
-                    skipLine();
-                    AnalyticsService.printTotalSummary(wallet);
+                    if (requestReportFormat().isEmpty()) {
+                        skipLine();
+                        print(AnalyticsService.makeTotalSummary(wallet));
+                    } else if (requestReportFormat().equals(".txt")) {
+                        pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
+                                deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeTotalSummary(wallet)),
+                                makeFilenameForReportFile("total_summary"), ".txt");
+                        printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
+                    }
                 }
                 case "2" -> {
-                    skipLine();
-                    AnalyticsService.printIncomeSummary(wallet);
+                    if (requestReportFormat().isEmpty()) {
+                        skipLine();
+                        print(AnalyticsService.makeIncomeSummary(wallet));
+                    } else if (requestReportFormat().equals(".txt")) {
+                        pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
+                                deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeIncomeSummary(wallet)),
+                                makeFilenameForReportFile("income_summary"), ".txt");
+                        printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
+                    }
                 }
                 case "3" -> {
-                    skipLine();
-                    AnalyticsService.printExpensesSummary(wallet);
+                    if (requestReportFormat().isEmpty()) {
+                        skipLine();
+                        print(AnalyticsService.makeExpensesSummary(wallet));
+                    } else if (requestReportFormat().equals(".txt")) {
+                        pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
+                                deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeExpensesSummary(wallet)),
+                                makeFilenameForReportFile("expenses_summary"), ".txt");
+                        printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
+                    }
                 }
                 case "4" -> {
-                    skipLine();
-                    AnalyticsService.printBudgetCategoriesAndLimitsSummary(wallet);
+                    if (requestReportFormat().isEmpty()) {
+                        skipLine();
+                        print(AnalyticsService.makeBudgetCategoriesAndLimitsSummary(wallet));
+                    } else if (requestReportFormat().equals(".txt")) {
+                        pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
+                                deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeBudgetCategoriesAndLimitsSummary(wallet)),
+                                makeFilenameForReportFile("budget_limits_summary"), ".txt");
+                        printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
+                    }
                 }
                 case "5" -> {
-                    //TODO
-                    println("Не добавлено.");
+                    PersonalBudgetingApp.setCurrentMenu(new AnalyticsExtendedMenu());
                 }
                 case "6" -> {
                     PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
@@ -60,6 +94,8 @@ public class AnalyticsMenu extends Menu {
         } catch (CancellationRequestedException e) {
             printlnPurple(e.getMessage());
             return;
+        } catch (IOException e) {
+            printlnRed(e.getMessage());
         }
     }
 }
