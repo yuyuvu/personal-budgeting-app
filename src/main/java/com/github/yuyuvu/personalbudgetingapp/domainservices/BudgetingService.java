@@ -107,10 +107,16 @@ public class BudgetingService {
         return limit - alreadySpent;
     }
 
-    public static double getRemainderByCategories(Wallet wallet, String... categories) {
+    public static double getRemainderByCategories(Wallet wallet, boolean sensibleToErrors, String... categories) {
         double result = 0.0;
         for (String category : categories){
-            result += getRemainderByCategory(wallet, category);
+            try {
+                result += getRemainderByCategory(wallet, category);
+            } catch (IllegalArgumentException e) {
+                if (sensibleToErrors){
+                    throw e;
+                }
+            }
         }
         return result;
     }

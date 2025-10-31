@@ -32,16 +32,18 @@ public class AnalyticsMenu extends Menu {
     public void handleUserInput() {
         String displayedUserNameForReports = "Отчёт для пользователя: " + PersonalBudgetingApp.getCurrentAppUser().getUsername() + ".\n";
         String pathToReportFile;
+        String reportFormat;
         requestUserInput(); // складывается в переменную super.currentInput
         try {
             Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
             Wallet wallet = PersonalBudgetingApp.getCurrentAppUser().getWallet();
             switch (getCurrentUserInput()) {
                 case "1" -> {
-                    if (requestReportFormat().isEmpty()) {
+                    reportFormat = requestReportFormat();
+                    if (reportFormat.isEmpty()) {
                         skipLine();
                         print(AnalyticsService.makeTotalSummary(wallet));
-                    } else if (requestReportFormat().equals(".txt")) {
+                    } else if (reportFormat.equals(".txt")) {
                         pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
                                 deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeTotalSummary(wallet)),
                                 makeFilenameForReportFile("total_summary"), ".txt");
@@ -49,10 +51,11 @@ public class AnalyticsMenu extends Menu {
                     }
                 }
                 case "2" -> {
-                    if (requestReportFormat().isEmpty()) {
+                    reportFormat = requestReportFormat();
+                    if (reportFormat.isEmpty()) {
                         skipLine();
                         print(AnalyticsService.makeIncomeSummary(wallet));
-                    } else if (requestReportFormat().equals(".txt")) {
+                    } else if (reportFormat.equals(".txt")) {
                         pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
                                 deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeIncomeSummary(wallet)),
                                 makeFilenameForReportFile("income_summary"), ".txt");
@@ -60,10 +63,11 @@ public class AnalyticsMenu extends Menu {
                     }
                 }
                 case "3" -> {
-                    if (requestReportFormat().isEmpty()) {
+                    reportFormat = requestReportFormat();
+                    if (reportFormat.isEmpty()) {
                         skipLine();
                         print(AnalyticsService.makeExpensesSummary(wallet));
-                    } else if (requestReportFormat().equals(".txt")) {
+                    } else if (reportFormat.equals(".txt")) {
                         pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
                                 deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeExpensesSummary(wallet)),
                                 makeFilenameForReportFile("expenses_summary"), ".txt");
@@ -71,10 +75,11 @@ public class AnalyticsMenu extends Menu {
                     }
                 }
                 case "4" -> {
-                    if (requestReportFormat().isEmpty()) {
+                    reportFormat = requestReportFormat();
+                    if (reportFormat.isEmpty()) {
                         skipLine();
                         print(AnalyticsService.makeBudgetCategoriesAndLimitsSummary(wallet));
-                    } else if (requestReportFormat().equals(".txt")) {
+                    } else if (reportFormat.equals(".txt")) {
                         pathToReportFile = DataPersistenceService.saveAnalyticsReportToFile(
                                 deleteColorsFromString(displayedUserNameForReports + AnalyticsService.makeBudgetCategoriesAndLimitsSummary(wallet)),
                                 makeFilenameForReportFile("budget_limits_summary"), ".txt");

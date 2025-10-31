@@ -51,14 +51,14 @@ public abstract class Menu {
                         --cancel - отмена текущего выбора и возврат в предыдущее меню;
                         --help - вывод помощи по приложению;
                         --logout - выход из текущего аккаунта пользователя;
-                        --turnoff - выключение приложения.""");
+                        --off - выключение приложения.""");
                 throw new CancellationRequestedException();
             }
             case "--logout" -> {
                 logOutOfCurrentUser(true);
                 throw new CancellationRequestedException();
             }
-            case "--turnoff" -> {
+            case "--off" -> {
                 logOutOfCurrentUser(false);
                 turnOffApplication(true);
             }
