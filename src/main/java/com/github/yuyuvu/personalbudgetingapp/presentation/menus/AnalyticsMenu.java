@@ -47,6 +47,7 @@ public class AnalyticsMenu extends Menu {
                     AnalyticsService.printBudgetCategoriesAndLimitsSummary(wallet);
                 }
                 case "5" -> {
+                    //TODO
                     println("Не добавлено.");
                 }
                 case "6" -> {

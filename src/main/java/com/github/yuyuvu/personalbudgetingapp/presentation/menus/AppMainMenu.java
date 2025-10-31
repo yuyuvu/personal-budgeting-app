@@ -33,9 +33,10 @@ public class AppMainMenu extends Menu {
                     PersonalBudgetingApp.setCurrentMenu(new IncomeAndExpensesManagementMenu());
                 }
                 case "3" -> {
-                    println("Не добавлено.");
+                    PersonalBudgetingApp.setCurrentMenu(new BudgetingManagementMenu());
                 }
                 case "4" -> {
+                    //TODO
                     println("Не добавлено.");
                 }
                 case "5" -> {

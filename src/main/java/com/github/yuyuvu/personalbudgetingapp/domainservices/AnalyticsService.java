@@ -18,7 +18,13 @@ public class AnalyticsService {
     }
 
     public static void printBalanceSummary(Wallet wallet) {
-        printlnGreen(String.format("Баланс доходов и расходов: %s%.2f", resetColor(), wallet.getBalance()));
+        double balance = wallet.getBalance();
+        if (balance < 0) {
+            printGreen("Баланс доходов и расходов: ");
+            printlnRed(String.format("%.2f", balance));
+        } else {
+            printlnGreen(String.format("Баланс доходов и расходов: %s%.2f", resetColor(), wallet.getBalance()));
+        }
     }
 
     public static void printExpensesSummary(Wallet wallet) {
@@ -34,7 +40,7 @@ public class AnalyticsService {
     }
 
     public static void printIncomeSummary(Wallet wallet) {
-        printlnGreen(String.format("Общий доход: %s%.2f", resetColor(), wallet.getTotalIncome()));
+        printlnGreen(String.format("Общие доходы: %s%.2f", resetColor(), wallet.getTotalIncome()));
         printlnCyan("Доходы по категориям:");
         if (wallet.getWalletOperationsIncomeCategories().isEmpty()) {
             printlnYellow("\tНет добавленных категорий доходов, добавьте новые операции в меню управления доходами и расходами.");
@@ -56,7 +62,7 @@ public class AnalyticsService {
             printPurple(String.format("\t- %s: %.2f. ", capitalizeFirstLetter(category.getKey()), BudgetingService.getLimitByCategory(wallet, category.getKey())));
             printPurple("Оставшийся бюджет: ");
             double remainder = BudgetingService.getRemainderByCategory(wallet, category.getKey());
-            if (remainder >= 0.0) {
+            if (remainder <= 0.0) {
                 printlnRed(String.valueOf(remainder));
             } else {
                 printlnGreen(String.valueOf(remainder));

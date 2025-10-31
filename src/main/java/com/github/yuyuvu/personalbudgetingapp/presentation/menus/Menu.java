@@ -39,7 +39,7 @@ public abstract class Menu {
     }
 
     public static void checkUserInputForAppGeneralCommands(String userInput) throws CancellationRequestedException {
-        switch (userInput) {
+        switch (userInput.toLowerCase()) {
             case "--cancel" -> {
                 throw new CancellationRequestedException();
             }

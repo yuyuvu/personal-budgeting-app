@@ -10,33 +10,37 @@ public class BudgetingService {
         return wallet.getBudgetCategoriesAndLimits().containsKey(category);
     }
 
-    public static void addNewExpensesCategoryLimit(Wallet wallet, String newCategory, double newLimit) {
-        wallet.getBudgetCategoriesAndLimits().put(newCategory, newLimit);
-    }
-
-    public static void removeExpensesCategoryLimit(Wallet wallet, String category) throws Exception {
-        if (checkExpensesCategoryLimitExistence(wallet, category)) {
-            if (getExpensesByCategory(wallet, category) != 0.0) {
-                wallet.getBudgetCategoriesAndLimits().remove(category);
-            } else {
-                throw new Exception("Указанная категория уже содержит учтённые расходы. Вместо удаления используйте объединение с другой категорией.");
-            }
+    public static void addNewExpensesCategoryLimit(Wallet wallet, String newCategory, double newLimit) throws IllegalArgumentException {
+        if (newLimit >= 0) {
+            wallet.getBudgetCategoriesAndLimits().put(newCategory, newLimit);
         } else {
-            throw new Exception("Указанной категории расходов не существует. Невозможно удалить.");
+            throw new IllegalArgumentException("Лимит должен быть больше нуля или равен ему. Невозможно добавить лимит.");
         }
     }
 
-    public static void changeLimitForCategory(Wallet wallet, String category, double newLimit) throws Exception {
+    public static void removeExpensesCategoryLimit(Wallet wallet, String category) throws IllegalArgumentException {
         if (checkExpensesCategoryLimitExistence(wallet, category)) {
-            wallet.getBudgetCategoriesAndLimits().put(category, newLimit);
+            wallet.getBudgetCategoriesAndLimits().remove(category);
         } else {
-            throw new Exception("Указанной категории расходов не существует. Невозможно изменить лимит.");
+            throw new IllegalArgumentException("Установленного бюджета для данной категории расходов не существует. Невозможно удалить.");
+        }
+    }
+
+    public static void changeLimitForCategory(Wallet wallet, String category, double newLimit) throws IllegalArgumentException {
+        if (checkExpensesCategoryLimitExistence(wallet, category)) {
+            if (newLimit >= 0) {
+                wallet.getBudgetCategoriesAndLimits().put(category, newLimit);
+            } else {
+                throw new IllegalArgumentException("Новый лимит должен быть больше нуля или равен ему. Невозможно изменить лимит.");
+            }
+        } else {
+            throw new IllegalArgumentException("Установленного бюджета для данной категории расходов не существует. Невозможно изменить лимит.");
         }
     }
 
     public static void changeNameForCategory(Wallet wallet, String category, String newName, boolean isIncome) {
         // Смена названия в хэш-таблице с лимитами (в случае, если это расход с лимитом)
-        if (checkExpensesCategoryLimitExistence(wallet, category)) {
+        if ((!isIncome) && checkExpensesCategoryLimitExistence(wallet, category)) {
             double limit = wallet.getBudgetCategoriesAndLimits().get(category);
             wallet.getBudgetCategoriesAndLimits().remove(category);
             wallet.getBudgetCategoriesAndLimits().put(newName, limit);
@@ -52,7 +56,7 @@ public class BudgetingService {
 
     public static void mergeExpensesCategories(Wallet wallet, String newCategoryName, String... oldCategories) {
         // Замена множества старых лимитов на один единый
-        double newLimit = getLimitByCategories(wallet, oldCategories);
+        double newLimit = getLimitByCategories(wallet, false, oldCategories);
         for (String category : oldCategories){
             wallet.getBudgetCategoriesAndLimits().remove(category);
         }
@@ -75,22 +79,32 @@ public class BudgetingService {
         }
     }
 
-    public static double getLimitByCategory(Wallet wallet, String category) {
-        return wallet.getBudgetCategoriesAndLimits().get(category);
+    public static double getLimitByCategory(Wallet wallet, String category) throws IllegalArgumentException {
+        if (checkExpensesCategoryLimitExistence(wallet, category)) {
+            return wallet.getBudgetCategoriesAndLimits().get(category);
+        } else {
+            throw new IllegalArgumentException("Установленного бюджета для данной категории расходов не существует. Невозможно совершить запрошенную операцию.");
+        }
     }
 
-    public static double getLimitByCategories(Wallet wallet, String... categories) {
+    public static double getLimitByCategories(Wallet wallet, boolean sensibleToErrors, String... categories) throws IllegalArgumentException {
         double result = 0.0;
         for (String category : categories){
-            result += getLimitByCategory(wallet, category);
+            try {
+                result += getLimitByCategory(wallet, category);
+            } catch (IllegalArgumentException e) {
+                if (sensibleToErrors){
+                    throw e;
+                }
+            }
         }
         return result;
     }
 
-    public static double getRemainderByCategory(Wallet wallet, String category) {
+    public static double getRemainderByCategory(Wallet wallet, String category) throws IllegalArgumentException {
         double limit = getLimitByCategory(wallet, category);
         double alreadySpent = getExpensesByCategory(wallet, category);
-        return alreadySpent - limit;
+        return limit - alreadySpent;
     }
 
     public static double getRemainderByCategories(Wallet wallet, String... categories) {

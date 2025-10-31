@@ -6,6 +6,7 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedEx
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
 import javax.swing.*;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -131,6 +132,8 @@ public class IncomeAndExpensesManagementMenu extends Menu {
                     }
                 } catch (IllegalArgumentException e) {
                     printlnRed("Дата введена в некорректном формате. Повторите ввод.");
+                } catch (DateTimeException e) {
+                    printlnRed("Введены невозможные значения для даты или времени. Повторите ввод.");
                 }
             } while (true);
         }
@@ -147,7 +150,7 @@ public class IncomeAndExpensesManagementMenu extends Menu {
     private void handleWalletOperationRemoval(Wallet wallet) throws CancellationRequestedException {
         do {
             try {
-                printCyan("Введите id операции, которую желаете удалить (можно посмотреть в меню вывода информации об операциях, --cancel для возврата в меню): ");
+                printCyan("Введите id операции, которую желаете удалить (можно посмотреть в меню вывода информации об операциях, \n--cancel для возврата в меню): ");
                 requestUserInput();
                 Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
                 long id = Long.parseLong(getCurrentUserInput());

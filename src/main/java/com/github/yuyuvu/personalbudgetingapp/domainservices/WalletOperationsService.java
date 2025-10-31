@@ -22,8 +22,8 @@ public class WalletOperationsService {
 
     public static void sendMoneyToAnotherUser(Wallet from, String to, double amount) {
         User anotherUser = DataPersistenceService.loadUserdataFromFile(to);
-        addExpense(from, amount, "Переводы другим пользователям", LocalDateTime.now());
-        addIncome(anotherUser.getWallet(), amount, "Переводы другим пользователям", LocalDateTime.now());
+        addExpense(from, amount, "переводы другим пользователям", LocalDateTime.now());
+        addIncome(anotherUser.getWallet(), amount, "переводы от других пользователей", LocalDateTime.now());
     }
 
 
