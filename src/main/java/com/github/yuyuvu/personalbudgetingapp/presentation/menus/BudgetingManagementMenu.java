@@ -2,11 +2,9 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.BudgetingService;
-import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
-import com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,18 +16,17 @@ public class BudgetingManagementMenu extends Menu {
 
     @Override
     public void showMenu() {
-        print(NotificationsService
-                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+        super.showMenu();
+        printlnYellow("Меню управления категориями доходов и расходов:");
+        printlnYellow("Операции с категориями расходов:");
         println("""
-                
-                Меню управления категориями доходов и расходов:
-                Операции с категориями расходов:
                 1. Добавить новый бюджет (лимит) для категории расходов.
                 2. Изменить значение существующего лимита для категории расходов.
                 3. Удалить бюджет для категории расходов.
                 4. Изменить название существующей категории расходов.
-                5. Объединить категории расходов и их лимиты.
-                Операции с категориями доходов:
+                5. Объединить категории расходов и их лимиты.""");
+        printlnYellow("Операции с категориями доходов:");
+        println("""
                 6. Изменить название существующей категории доходов.
                 7. Объединить категории доходов.
                 8. Возврат в главное меню.""");
@@ -68,7 +65,7 @@ public class BudgetingManagementMenu extends Menu {
                     PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
                 }
                 default -> {
-                    printlnYellow("Некорректный ввод, введите цифру от 1 до 7.");
+                    printlnYellow("Некорректный ввод, введите цифру от 1 до 8.");
                 }
             }
         } catch (CancellationRequestedException e) {

@@ -3,17 +3,17 @@ package com.github.yuyuvu.personalbudgetingapp.appservices;
 import java.util.Properties;
 
 public class ConfigManager {
-    Properties appProperies = new Properties();
+    private Properties appProperies = new Properties();
 
     public ConfigManager() {
         appProperies.setProperty("app.show.notifications", "true");
     }
 
-    String checkNotificationsConfig() {
+    public String checkNotificationsConfig() {
         return appProperies.getProperty("app.show.notifications");
     }
 
-    boolean reverseNotificationsConfig() {
+    public boolean reverseNotificationsConfig() {
         if (checkNotificationsConfig().equals("true")) {
             appProperies.setProperty("app.show.notifications", "false");
             return false;

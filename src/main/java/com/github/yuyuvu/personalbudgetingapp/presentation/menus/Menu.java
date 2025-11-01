@@ -2,6 +2,7 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
+import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
 import java.time.DateTimeException;
@@ -13,7 +14,11 @@ public abstract class Menu {
 
     private String currentInput;
 
-    public abstract void showMenu();
+    public void showMenu() {
+        print(NotificationsService
+                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+        skipLine();
+    }
     public abstract void handleUserInput();
 
     protected static void turnOffApplication(boolean printMessages) {

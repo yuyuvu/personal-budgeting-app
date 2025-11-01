@@ -19,11 +19,9 @@ public class AnalyticsExtendedMenu extends Menu {
 
     @Override
     public void showMenu() {
-        print(NotificationsService
-                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+        super.showMenu();
+        printlnYellow("Меню расширенной аналитики:");
         println("""
-                
-                Меню расширенной аналитики:
                 1. Вывод данных по доходам или расходам с фильтрацией по категориям.
                 2. Вывод данных по доходам или расходам с фильтрацией по периоду.
                 3. Вывод всех операций дохода.

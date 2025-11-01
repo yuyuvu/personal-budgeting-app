@@ -1,7 +1,6 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
-import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
@@ -10,11 +9,9 @@ public class AppMainMenu extends Menu {
 
     @Override
     public void showMenu() {
-        print(NotificationsService
-                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+        super.showMenu();
+        printlnYellow("Меню приложения:");
         println("""
-                
-                Меню приложения:
                 1. Просмотр информации о своих доходах, расходах и лимитах по категориям.
                 2. Управление доходами, расходами и переводами другим пользователям.
                 3. Управление категориями доходов, расходов и бюджетами.

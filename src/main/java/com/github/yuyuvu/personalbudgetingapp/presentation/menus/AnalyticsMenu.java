@@ -3,13 +3,10 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.AnalyticsService;
-import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
@@ -17,11 +14,9 @@ public class AnalyticsMenu extends Menu {
 
     @Override
     public void showMenu() {
-        print(NotificationsService
-                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+        super.showMenu();
+        printlnYellow("Меню аналитики:");
         println("""
-                
-                Меню аналитики:
                 1. Вывод общей сводки.
                 2. Вывод сводки по доходам.
                 3. Вывод сводки по расходам.

@@ -10,9 +10,9 @@ public class AuthorizationMenu extends Menu {
 
     @Override
     public void showMenu() {
+        skipLine();
+        printlnYellow("Меню авторизации:");
         println("""
-                
-                Меню авторизации:
                 1. Зарегистрироваться в системе.
                 2. Зайти в аккаунт имеющегося пользователя.
                 3. Выключить приложение.""");
