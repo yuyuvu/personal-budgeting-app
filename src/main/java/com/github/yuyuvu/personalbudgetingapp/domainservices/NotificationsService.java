@@ -2,6 +2,8 @@ package com.github.yuyuvu.personalbudgetingapp.domainservices;
 
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
+import java.util.ArrayList;
+
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
 public class NotificationsService {
@@ -31,9 +33,15 @@ public class NotificationsService {
 
     public static String checkBalanceConsumption(Wallet wallet) {
         StringBuilder result = new StringBuilder();
-        if (wallet.getTotalExpenses() >= (wallet.getTotalIncome() * 1.20)) {
-            result.append(paintRed(String.format("- Ваши расходы значительно превышают ваши доходы: в %.2f раз.",
-                    wallet.getTotalExpenses()/wallet.getTotalIncome()))).append("\n");
+        boolean noOperations = wallet.getIncomeWalletOperations().isEmpty() && wallet.getExpensesWalletOperations().isEmpty();
+        boolean allTypesOfOperationsPresent = !wallet.getIncomeWalletOperations().isEmpty() && !wallet.getExpensesWalletOperations().isEmpty();
+        if (noOperations) {
+            result.append(paintPurple("- У вас пока нет добавленных доходов или расходов. У вас нулевой баланс.")).append("\n");
+            return result.toString();
+        }
+        if (allTypesOfOperationsPresent && (wallet.getTotalExpenses() >= (wallet.getTotalIncome() * 1.20))) {
+            result.append(paintRed(String.format("- Ваши расходы значительно превышают ваши доходы: в %.1f раз. У вас отрицательный баланс.",
+                        wallet.getTotalExpenses() / wallet.getTotalIncome()))).append("\n");
         } else if (wallet.getBalance() < 0.0) {
             result.append(paintRed("- Ваши расходы превысили ваши доходы. У вас отрицательный баланс.")).append("\n");
         } else if (Math.round(wallet.getBalance()) == 0) {
@@ -42,6 +50,9 @@ public class NotificationsService {
             result.append(paintRed("- Ваши расходы превысили отметку в 80% от ваших доходов.")).append("\n");
         } else if (wallet.getTotalExpenses() >= (wallet.getTotalIncome() * 0.70)) {
             result.append(paintPurple("- Ваши расходы превысили отметку в 70% от ваших доходов.")).append("\n");
+        } else if (allTypesOfOperationsPresent && (wallet.getTotalIncome() >= (wallet.getTotalExpenses() * 1.50))) {
+            result.append(paintGreen(String.format("- Ваши доходы значительно превышают ваши расходы: в %.1f раз. Так держать!",
+                        wallet.getTotalIncome() / wallet.getTotalExpenses()))).append("\n");
         }
         return result.toString();
     }
@@ -62,7 +73,7 @@ public class NotificationsService {
 
         for (String category : wallet.getWalletOperationsIncomeCategories()) {
             double incomeByCategory = WalletOperationsService.getIncomeByCategory(wallet, category);
-            if (incomeByCategory >= (totalIncome * 0.35)) {
+            if (incomeByCategory >= (totalIncome * 0.4)) {
                 result.append(paintCyan(String.format("- Категория доходов \"%s\" значительно влияет на общую сумму доходов: она составляет %.1f%% от них.",
                         category,
                         incomeByCategory/totalIncome*100))).append("\n");
@@ -74,25 +85,28 @@ public class NotificationsService {
 
     public static String checkBudgetLimitsConsumption(Wallet wallet) {
         StringBuilder result = new StringBuilder();
-
+        ArrayList<String> restrictedCategories = new ArrayList<>();
         for (String category : wallet.getBudgetCategoriesAndLimits().keySet()) {
             double remainderByCategory = BudgetingService.getRemainderByCategory(wallet, category);
             double limitByCategory = BudgetingService.getLimitByCategory(wallet, category);
-
+            double expensesByCategory = WalletOperationsService.getExpensesByCategory(wallet, category);
+            if (Math.round(limitByCategory) == 0) {restrictedCategories.add(category);}
             if (remainderByCategory < 0) {
                 result.append(paintRed(String.format("- Вы вышли за бюджет расходов на категорию \"%s\" (потрачено: %.1f, лимит: %.1f, перерасход: %.1f).",
-                        category, limitByCategory - remainderByCategory, limitByCategory, Math.abs(remainderByCategory)))).append("\n");
-            } else if (Math.round(remainderByCategory) == 0) {
+                        category, expensesByCategory, limitByCategory, Math.abs(remainderByCategory)))).append("\n");
+            } else if (Math.round(remainderByCategory) == 0 && Math.round(limitByCategory) != 0) {
                 result.append(paintRed(String.format("- Вы израсходовали бюджет расходов на категорию \"%s\" (потрачено: %.1f, лимит: %.1f). У вас нулевой остаток бюджета по ней.",
-                        category, limitByCategory - remainderByCategory, limitByCategory))).append("\n");
-            } else if (remainderByCategory <= (limitByCategory * 0.2)) {
+                        category, expensesByCategory, limitByCategory))).append("\n");
+            } else if (expensesByCategory > 0 && (remainderByCategory <= (limitByCategory * 0.2))) {
                 result.append(paintPurple(String.format("- У вас заканчивается бюджет расходов на категорию \"%s\" (потрачено: %.1f, лимит: %.1f, потрачено %.1f%% от лимита).",
-                        category,
-                        limitByCategory - remainderByCategory,
-                        limitByCategory,
-                        (limitByCategory - remainderByCategory)/limitByCategory*100))
+                        category, expensesByCategory,
+                        limitByCategory, (expensesByCategory)/limitByCategory*100))
                 ).append("\n");
             }
+        }
+        if (!restrictedCategories.isEmpty()) {
+            result.append(paintRed(String.format("- Вы запретили любые расходы на категории \"%s\" (по ним установлен лимит: 0.0). Помните об этом!",
+                    restrictedCategories.toString().replaceAll("[\\[\\]]", "")))).append("\n");
         }
         return result.toString();
     }
