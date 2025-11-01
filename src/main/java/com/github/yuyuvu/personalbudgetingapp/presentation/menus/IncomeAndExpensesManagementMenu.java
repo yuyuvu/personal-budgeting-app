@@ -2,6 +2,7 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.AuthorizationService;
+import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.WalletOperationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
@@ -15,6 +16,8 @@ public class IncomeAndExpensesManagementMenu extends Menu {
 
     @Override
     public void showMenu() {
+        print(NotificationsService
+                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
         println("""
                 
                 Меню управления доходами и расходами:

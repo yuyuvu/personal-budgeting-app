@@ -3,6 +3,7 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.AnalyticsService;
+import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
@@ -18,6 +19,8 @@ public class AnalyticsExtendedMenu extends Menu {
 
     @Override
     public void showMenu() {
+        print(NotificationsService
+                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
         println("""
                 
                 Меню расширенной аналитики:

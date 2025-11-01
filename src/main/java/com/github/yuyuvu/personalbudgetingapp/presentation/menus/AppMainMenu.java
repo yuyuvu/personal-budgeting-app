@@ -1,6 +1,7 @@
 package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
@@ -9,6 +10,8 @@ public class AppMainMenu extends Menu {
 
     @Override
     public void showMenu() {
+        print(NotificationsService
+                .checkAndPrepareNotifications(PersonalBudgetingApp.getCurrentAppUser().getWallet()));
         println("""
                 
                 Меню приложения:
