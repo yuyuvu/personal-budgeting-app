@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,9 +60,9 @@ public class DataPersistenceService {
         }
     }
 
-    public static HashMap<String, String> getRegisteredUsernamesAndPasswords() throws Exception {
+    public static HashMap<String, String[]> getRegisteredUsernamesAndHashesAndSalts() throws Exception {
         try (Stream<Path> files = Files.list(relationalPathToUserdataFiles)) {
-            return (HashMap<String, String>) files.map(file -> {
+            return (HashMap<String, String[]>) files.map(file -> {
                         try {
                             return Files.readString(file);
                         } catch (IOException e) {
@@ -70,13 +71,18 @@ public class DataPersistenceService {
                     })
                     .map(fileContents -> {
                         try {
-                            return Map.entry(jsonObjectMapper.readTree(fileContents).get("username").asString(), jsonObjectMapper.readTree(fileContents).get("password").asString());
+                            String[] passwordData = {jsonObjectMapper.readTree(fileContents).get("passwordData")
+                                    .get(AuthorizationService.PasswordData.HASH.ordinal()).asString(),
+                                    jsonObjectMapper.readTree(fileContents).get("passwordData")
+                                            .get(AuthorizationService.PasswordData.SALT.ordinal()).asString()};
+                            return Map.entry(jsonObjectMapper.readTree(fileContents).get("username").asString(), passwordData);
                         } catch (JacksonException | NullPointerException e) {
-                            printlnRed("Проблемы с парсингом json-файла отдельного пользователя при получении имён и паролей зарегистрированных пользователей. \nФайлы пользователей могли быть не сохранены при экстренном завершении программы. Удалите пустые файлы в ./userdata_files.");
-                            printlnGreen("Вам можно продолжать работу.");
+                            printlnRed("Проблемы с десериализацией json-файла отдельного пользователя при получении имён и паролей зарегистрированных пользователей. \nФайл пользователя представлен в некорректном формате. Удалите пустые и лишние файлы в ./appdata/userdata_wallets.");
+                            printlnGreen("Можно продолжать работу.");
                         }
-                        return Map.entry("app_placeholder", "sdhjaksduqieKFDSJHV91yOIAd81ljFOIAs123");
+                        return null;
                     })
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (ClassCastException e) {
             throw new Exception("Проблемы с преобразованием Map в HashMap при загрузке имён и паролей зарегистрированных пользователей.");

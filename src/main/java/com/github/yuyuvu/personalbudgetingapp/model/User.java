@@ -2,22 +2,24 @@ package com.github.yuyuvu.personalbudgetingapp.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import java.util.Arrays;
+
 /** Класс User используется для более наглядного разделения логики работы авторизации и операций с кошельком.
  * <br>Также выделение пользователя отдельно от его кошелька позволяет более удобно работать с сохранением данных в файлы.
  * <br>В логике управления личными финансами используется только для получения экземпляра кошелька (getWallet).*/
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class User {
     private String username;
-    private String password;
+    private String[] passwordData;
     private Wallet wallet;
 
     /** Данный конструктор должен использоваться только библиотекой Jackson для десериализации */
     private User() {}
 
     /** Данный конструктор используется при создании нового пользователя в AuthorizationService */
-    public User (String username, String password) {
+    public User (String username, String[] passwordData) {
         this.username = username;
-        this.password = password;
+        this.passwordData = passwordData;
         this.wallet = new Wallet(false);
     }
 
@@ -41,7 +43,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "username='" + username + '\'' +
-                ", password='" + password + '\'' +
+                ", password='" + Arrays.toString(passwordData) + '\'' +
                 ", wallet=" + wallet +
                 '}';
     }

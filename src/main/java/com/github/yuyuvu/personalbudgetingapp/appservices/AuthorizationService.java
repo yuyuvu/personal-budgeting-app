@@ -11,12 +11,15 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*
 
 // TODO: Добавить хеширование паролей
 public class AuthorizationService {
-    private static HashMap<String, String> loadedUsernamesAndPasswords = new HashMap<>();
+    private static HashMap<String, String[]> loadedUsernamesAndHashesAndSalts = new HashMap<>();
+    public enum PasswordData {
+        HASH, SALT
+    }
 
     // Получаем данные об уже имеющихся пользователях после полного выключения и перезапуска всего приложения
     static {
         try {
-            loadedUsernamesAndPasswords = DataPersistenceService.getRegisteredUsernamesAndPasswords();
+            loadedUsernamesAndHashesAndSalts = DataPersistenceService.getRegisteredUsernamesAndHashesAndSalts();
         } catch (Exception e) {
             // Ошибки чтения файлов с данными пользователей. Приложение всё ещё может работать,
             // но не будет помнить о пользователях из прошлого запуска.
@@ -24,8 +27,8 @@ public class AuthorizationService {
         }
     }
 
-    private static HashMap<String, String> getLoadedUsernamesAndPasswords() {
-        return loadedUsernamesAndPasswords;
+    private static HashMap<String, String[]> getLoadedUsernamesAndHashesAndSalts() {
+        return loadedUsernamesAndHashesAndSalts;
     }
 
     public static boolean validateNewUsername(String tempNewUsername) throws CheckedIllegalArgumentException, InvalidCredentialsException {
@@ -46,12 +49,18 @@ public class AuthorizationService {
     }
 
     public static User registerUser(String inputNewUsername, String inputNewPassword) throws IOException {
-        printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
-        getLoadedUsernamesAndPasswords().put(inputNewUsername, inputNewPassword);
-        User newUser = new User(inputNewUsername, inputNewPassword);
+        String newSalt = PasswordHasher.SaltGenerator.makeSalt();
+        String newHash = PasswordHasher.makePasswordHash(inputNewPassword, newSalt);
+        String[] passwordData = new String[]{newHash, newSalt};
+        getLoadedUsernamesAndHashesAndSalts().put(inputNewUsername, passwordData);
+
+        User newUser = new User(inputNewUsername, passwordData);
+
         // Следующие два вызова могут выбрасывать IOException
         DataPersistenceService.makeNewUserWalletFile(inputNewUsername);
         DataPersistenceService.saveUserdataToFile(newUser);
+
+        printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
         return newUser;
     }
 
@@ -63,7 +72,9 @@ public class AuthorizationService {
     }
 
     public static boolean validateExistingPassword(String inputExistingUsername, String tempExistingPassword) throws InvalidCredentialsException {
-        if (!getLoadedUsernamesAndPasswords().get(inputExistingUsername).equals(tempExistingPassword)) {
+        String hash = getLoadedUsernamesAndHashesAndSalts().get(inputExistingUsername)[PasswordData.HASH.ordinal()];
+        String salt = getLoadedUsernamesAndHashesAndSalts().get(inputExistingUsername)[PasswordData.SALT.ordinal()];
+        if (!hash.equals(PasswordHasher.makePasswordHash(tempExistingPassword, salt))) {
             throw new InvalidCredentialsException("Введён некорректный пароль для аккаунта пользователя " +  inputExistingUsername + ", повторите попытку.");
         }
         return true;
@@ -76,11 +87,11 @@ public class AuthorizationService {
     }
 
     public static boolean checkUserExistence(String username) {
-        return getLoadedUsernamesAndPasswords().containsKey(username);
+        return getLoadedUsernamesAndHashesAndSalts().containsKey(username);
     }
 
     public static boolean checkUserExistenceIrrespectiveOfCase(String username) {
-        for (String key : getLoadedUsernamesAndPasswords().keySet()) {
+        for (String key : getLoadedUsernamesAndHashesAndSalts().keySet()) {
             if (key.equalsIgnoreCase(username)) {
                 return true;
             }
