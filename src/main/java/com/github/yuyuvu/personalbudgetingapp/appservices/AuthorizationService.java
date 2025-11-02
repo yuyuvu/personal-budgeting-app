@@ -1,9 +1,8 @@
 package com.github.yuyuvu.personalbudgetingapp.appservices;
 
-import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
-import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
+import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
+import com.github.yuyuvu.personalbudgetingapp.exceptions.InvalidCredentialsException;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
-import com.github.yuyuvu.personalbudgetingapp.presentation.menus.Menu;
 
 import java.util.HashMap;
 
@@ -11,94 +10,68 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*
 
 // TODO: Добавить хеширование паролей
 public class AuthorizationService {
-    private static HashMap<String, String> loadedUsernamesAndPasswords;
+    private static final HashMap<String, String> loadedUsernamesAndPasswords;
 
     // Получаем данные об уже имеющихся пользователях после полного выключения и перезапуска всего приложения
     static {
         loadedUsernamesAndPasswords = DataPersistenceService.getRegisteredUsernamesAndPasswords();
     }
 
-    public static User registerUser() throws CancellationRequestedException {
-        String inputNewUsername;
-        String inputNewPassword;
-
-        do {
-            printCyan("Введите имя пользователя (логин): ");
-            String tempNewUsername = PersonalBudgetingApp.getUserInput().nextLine().strip();
-
-            Menu.checkUserInputForAppGeneralCommands(tempNewUsername);
-            if (tempNewUsername.isBlank() || tempNewUsername.contains(" ") || !tempNewUsername.matches("^[a-zA-Z0-9]{3,}$")) {
-                printlnRed("Введено некорректное имя пользователя, введите имя из как минимум трёх символов (допустимы только цифры и латиница) без пробелов.");
-                continue;
-            }
-            if (checkUserExistenceIrrespectiveOfCase(tempNewUsername)) {
-                printlnRed("Такой пользователь уже существует. Введите другое имя пользователя.");
-                continue;
-            }
-
-            inputNewUsername = tempNewUsername;
-            break;
-        } while (true);
-
-        do {
-            printCyan("Введите пароль: ");
-            String tempNewPassword = PersonalBudgetingApp.getUserInput().nextLine().strip();
-
-            Menu.checkUserInputForAppGeneralCommands(tempNewPassword);
-            if (tempNewPassword.isBlank() || tempNewPassword.contains(" ") || tempNewPassword.length() < 3) {
-                printlnRed("Введён некорректный пароль, введите пароль из как минимум трёх символов без пробелов.");
-                continue;
-            }
-
-            inputNewPassword = tempNewPassword;
-            break;
-        } while (true);
-
-        printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
-        loadedUsernamesAndPasswords.put(inputNewUsername, inputNewPassword);
-        DataPersistenceService.makeNewUserWalletFile(inputNewUsername);
-        return new User(inputNewUsername, inputNewPassword);
+    private static HashMap<String, String> getLoadedUsernamesAndPasswords() {
+        return loadedUsernamesAndPasswords;
     }
 
-    public static User logInToAccount() throws CancellationRequestedException {
-        String inputExistingUsername;
+    public static boolean validateNewUsername(String tempNewUsername) throws CheckedIllegalArgumentException, InvalidCredentialsException {
+        if (tempNewUsername.isBlank() || tempNewUsername.contains(" ") || !tempNewUsername.matches("^[a-zA-Z0-9]{3,}$")) {
+            throw new CheckedIllegalArgumentException("Введено некорректное имя пользователя, введите имя из как минимум трёх символов (допустимы только цифры и латиница) без пробелов.");
+        }
+        if (checkUserExistenceIrrespectiveOfCase(tempNewUsername)) {
+            throw new InvalidCredentialsException("Такой пользователь уже существует. Введите другое имя пользователя.");
+        }
+        return true;
+    }
 
-        do {
-            printCyan("Введите имя пользователя (логин) с учётом регистра: ");
-            String tempExistingUsername = PersonalBudgetingApp.getUserInput().nextLine().strip();
+    public static boolean validateNewPassword(String tempNewPassword) throws CheckedIllegalArgumentException {
+        if (tempNewPassword.isBlank() || tempNewPassword.contains(" ") || tempNewPassword.length() < 3) {
+            throw new CheckedIllegalArgumentException("Введён некорректный пароль, введите пароль из как минимум трёх символов без пробелов.");
+        }
+        return true;
+    }
 
-            Menu.checkUserInputForAppGeneralCommands(tempExistingUsername);
-            if (!checkUserExistence(tempExistingUsername)) {
-                printlnRed("Такого пользователя не существует. Введите корректное имя существующего пользователя.");
-                continue;
-            }
+    public static User registerUser(String inputNewUsername, String inputNewPassword) {
+        printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
+        getLoadedUsernamesAndPasswords().put(inputNewUsername, inputNewPassword);
+        User newUser = new User(inputNewUsername, inputNewPassword);
+        DataPersistenceService.makeNewUserWalletFile(inputNewUsername);
+        DataPersistenceService.saveUserdataToFile(newUser);
+        return newUser;
+    }
 
-            inputExistingUsername = tempExistingUsername;
-            break;
-        } while (true);
+    public static boolean validateExistingUsername(String tempExistingUsername) throws InvalidCredentialsException {
+        if (!checkUserExistence(tempExistingUsername)) {
+            throw new InvalidCredentialsException("Такого пользователя не существует. Введите корректное имя существующего пользователя.");
+        }
+        return true;
+    }
 
-        do {
-            printCyan("Введите пароль: ");
-            String tempExistingPassword = PersonalBudgetingApp.getUserInput().nextLine().strip();
+    public static boolean validateExistingPassword(String inputExistingUsername, String tempExistingPassword) throws InvalidCredentialsException {
+        if (!getLoadedUsernamesAndPasswords().get(inputExistingUsername).equals(tempExistingPassword)) {
+            throw new InvalidCredentialsException("Введён некорректный пароль для аккаунта пользователя " +  inputExistingUsername + ", повторите попытку.");
+        }
+        return true;
+    }
 
-            Menu.checkUserInputForAppGeneralCommands(tempExistingPassword);
-            if (!loadedUsernamesAndPasswords.get(inputExistingUsername).equals(tempExistingPassword)) {
-                printlnRed("Введён некорректный пароль для аккаунта пользователя " +  inputExistingUsername + ", повторите попытку.");
-                continue;
-            }
-            break;
-        } while (true);
-
+    public static User logInToAccount(String inputExistingUsername) {
         printlnGreen("Успешный вход в аккаунт пользователя " + inputExistingUsername + "!");
         return DataPersistenceService.loadUserdataFromFile(inputExistingUsername);
     }
 
     public static boolean checkUserExistence(String username) {
-        return loadedUsernamesAndPasswords.containsKey(username);
+        return getLoadedUsernamesAndPasswords().containsKey(username);
     }
 
     public static boolean checkUserExistenceIrrespectiveOfCase(String username) {
-        for (String key : loadedUsernamesAndPasswords.keySet()) {
+        for (String key : getLoadedUsernamesAndPasswords().keySet()) {
             if (key.equalsIgnoreCase(username)) {
                 return true;
             }
