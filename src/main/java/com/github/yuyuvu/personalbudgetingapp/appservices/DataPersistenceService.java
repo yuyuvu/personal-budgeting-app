@@ -1,5 +1,6 @@
 package com.github.yuyuvu.personalbudgetingapp.appservices;
 
+import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 
 import java.io.FileReader;
@@ -21,6 +22,7 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*
 public class DataPersistenceService {
     static Path relationalPathToUserdataFiles = Path.of("userdata_files");
     static Path relationalPathToAnalyticsReportsFiles = Path.of("analytics_reports");
+    static Path relationalPathToSnapshotsFiles = Path.of("userdata_snapshots");
     static String dataFileExtension = ".json";
     //static String reportsFilesExtension = ".txt";
     static ObjectMapper jsonObjectMapper = new ObjectMapper();
@@ -29,6 +31,7 @@ public class DataPersistenceService {
         try {
             Files.createDirectories(relationalPathToUserdataFiles);
             Files.createDirectories(relationalPathToAnalyticsReportsFiles);
+            Files.createDirectories(relationalPathToSnapshotsFiles);
         } catch (IOException e) {
             printlnRed("Проблемы с созданием директорий для хранения пользовательских данных и сохранения отчётов.");
             throw new RuntimeException(e);
@@ -105,5 +108,30 @@ public class DataPersistenceService {
             throw new IOException("Проблемы с сохранением отчёта в файл.");
         }
         return pathWhereSave.toString();
+    }
+
+    public static String saveSnapshotToFile(String fileContent, String fileName) throws IOException {
+        Path pathWhereSave = relationalPathToSnapshotsFiles.resolve(fileName+dataFileExtension);
+        try {
+            Files.write(pathWhereSave, fileContent.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new IOException("Проблемы с сохранением отчёта в файл: " + e.getMessage());
+        }
+        return pathWhereSave.toString();
+    }
+
+    public static String loadSnapshotFromFile(String filePath) throws CheckedIllegalArgumentException, IOException {
+        String result = "";
+        try {
+            Path pathToSnapshot = Path.of(filePath);
+            if (!Files.exists(pathToSnapshot)) {
+                throw new CheckedIllegalArgumentException("Файла по указанному пути не существует.");
+            }
+            result = Files.readString(pathToSnapshot);
+            // println(result);
+        } catch (IOException e) {
+            throw new IOException("Проблемы с чтением информации из файла снапшота: " + e.getMessage() + ".");
+        }
+        return result;
     }
 }

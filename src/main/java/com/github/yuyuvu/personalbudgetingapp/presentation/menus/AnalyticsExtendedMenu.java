@@ -3,7 +3,6 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.AnalyticsService;
-import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
@@ -133,7 +132,7 @@ public class AnalyticsExtendedMenu extends Menu {
     private String handleRequestByPeriod(Wallet wallet) throws CancellationRequestedException {
         LocalDateTime periodStart = requestDateFromUser("Введите дату и время начала периода фильтрации (включительно).\n");
         LocalDateTime periodEnd = requestDateFromUser("Введите дату и время конца периода фильтрации (включительно).\n");
-        return AnalyticsService.makeSummaryByPeriod(wallet, periodStart, periodEnd);
+        return AnalyticsService.makeSummaryByPeriod(wallet, periodStart, periodEnd.plusMinutes(1));
     }
 
     private boolean requestIncomeOrExpenses() throws CancellationRequestedException {

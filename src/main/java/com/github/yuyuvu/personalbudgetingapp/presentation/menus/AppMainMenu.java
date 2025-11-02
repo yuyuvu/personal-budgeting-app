@@ -36,8 +36,7 @@ public class AppMainMenu extends Menu {
                     PersonalBudgetingApp.setCurrentMenu(new BudgetingManagementMenu());
                 }
                 case "4" -> {
-                    //TODO
-                    println("Не добавлено.");
+                    PersonalBudgetingApp.setCurrentMenu(new CheckpointsSaveAndLoadMenu());
                 }
                 case "5" -> {
                     logOutOfCurrentUser(true);

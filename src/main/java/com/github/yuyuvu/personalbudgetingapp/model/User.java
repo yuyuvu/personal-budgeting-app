@@ -31,6 +31,11 @@ public class User {
         return wallet;
     }
 
+    /** Метод для смены экземпляра кошелька при загрузке снимка состояния из файла.*/
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
+
     /** Используется для отладки. <br>Метод для перевода значений полей, хранимых в объекте пользователя, в строку.*/
     @Override
     public String toString() {
