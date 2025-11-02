@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.diffplug.spotless") version "8.0.0"
 }
 
 group = "com.github.yuyuvu"
@@ -19,6 +20,13 @@ repositories {
 dependencies {
     // https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
     implementation("tools.jackson.core:jackson-databind:3.0.0")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 // указываем, что везде нужна кодировка UTF-8; без этого кириллица отображается в консоли неправильно
@@ -45,4 +53,14 @@ tasks.jar {
     val dependencies = configurations.runtimeClasspath.get().map(::zipTree)
     from(dependencies)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+
+spotless {
+    java {
+        // apply a specific flavor of google-java-format
+        //removeUnusedImports()
+        //formatAnnotations()
+        googleJavaFormat("1.31.0")
+    }
 }
