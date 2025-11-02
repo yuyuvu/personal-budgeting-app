@@ -4,6 +4,7 @@ import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class WalletOperationsService {
         return wallet.getWalletOperations().removeIf(wo -> wo.getId() == id);
     }
 
-    public static void transferMoneyToAnotherUser(User from, String to, double amount) {
+    public static void transferMoneyToAnotherUser(User from, String to, double amount) throws IOException {
         User anotherUser = DataPersistenceService.loadUserdataFromFile(to);
         addExpense(from.getWallet(), amount, ("переводы пользователю " + anotherUser.getUsername()).toLowerCase(), LocalDateTime.now());
         addIncome(anotherUser.getWallet(), amount, ("переводы от пользователя " + from.getUsername()).toLowerCase(), LocalDateTime.now());

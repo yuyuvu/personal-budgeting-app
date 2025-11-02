@@ -4,17 +4,24 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentE
 import com.github.yuyuvu.personalbudgetingapp.exceptions.InvalidCredentialsException;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
 // TODO: Добавить хеширование паролей
 public class AuthorizationService {
-    private static final HashMap<String, String> loadedUsernamesAndPasswords;
+    private static HashMap<String, String> loadedUsernamesAndPasswords = new HashMap<>();
 
     // Получаем данные об уже имеющихся пользователях после полного выключения и перезапуска всего приложения
     static {
-        loadedUsernamesAndPasswords = DataPersistenceService.getRegisteredUsernamesAndPasswords();
+        try {
+            loadedUsernamesAndPasswords = DataPersistenceService.getRegisteredUsernamesAndPasswords();
+        } catch (Exception e) {
+            // Ошибки чтения файлов с данными пользователей. Приложение всё ещё может работать,
+            // но не будет помнить о пользователях из прошлого запуска.
+            printlnRed(e.getMessage());
+        }
     }
 
     private static HashMap<String, String> getLoadedUsernamesAndPasswords() {
@@ -38,10 +45,11 @@ public class AuthorizationService {
         return true;
     }
 
-    public static User registerUser(String inputNewUsername, String inputNewPassword) {
+    public static User registerUser(String inputNewUsername, String inputNewPassword) throws IOException {
         printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
         getLoadedUsernamesAndPasswords().put(inputNewUsername, inputNewPassword);
         User newUser = new User(inputNewUsername, inputNewPassword);
+        // Следующие два вызова могут выбрасывать IOException
         DataPersistenceService.makeNewUserWalletFile(inputNewUsername);
         DataPersistenceService.saveUserdataToFile(newUser);
         return newUser;
@@ -61,9 +69,10 @@ public class AuthorizationService {
         return true;
     }
 
-    public static User logInToAccount(String inputExistingUsername) {
+    public static User logInToAccount(String inputExistingUsername) throws IOException {
+        User loadedUser = DataPersistenceService.loadUserdataFromFile(inputExistingUsername);
         printlnGreen("Успешный вход в аккаунт пользователя " + inputExistingUsername + "!");
-        return DataPersistenceService.loadUserdataFromFile(inputExistingUsername);
+        return loadedUser;
     }
 
     public static boolean checkUserExistence(String username) {

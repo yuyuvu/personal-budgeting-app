@@ -5,6 +5,7 @@ import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService
 import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
+import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 
@@ -30,7 +31,12 @@ public abstract class Menu {
     protected static void logOutOfCurrentUser(boolean printMessages) {
         if (PersonalBudgetingApp.getCurrentAppUser() != null) {
             if (printMessages) {printlnGreen(String.format("Осуществляется выход из аккаунта пользователя %s...", PersonalBudgetingApp.getCurrentAppUser().getUsername()));}
-            DataPersistenceService.saveUserdataToFile(PersonalBudgetingApp.getCurrentAppUser());
+            try {
+                DataPersistenceService.saveUserdataToFile(PersonalBudgetingApp.getCurrentAppUser());
+            } catch (IOException e) {
+                printlnRed(e.getMessage());
+                printlnRed("К сожалению, данные пользователя не были сохранены. Проверьте права доступа на директории.");
+            }
             PersonalBudgetingApp.setCurrentAppUser(null);
             PersonalBudgetingApp.setCurrentMenu(new AuthorizationMenu());
         } else {

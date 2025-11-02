@@ -7,6 +7,8 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentE
 import com.github.yuyuvu.personalbudgetingapp.exceptions.InvalidCredentialsException;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 
+import java.io.IOException;
+
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
 
 public class AuthorizationMenu extends Menu {
@@ -45,10 +47,15 @@ public class AuthorizationMenu extends Menu {
             }
         } catch (CancellationRequestedException e) {
             printlnPurple(e.getMessage());
+        } catch (IOException e) {
+            // Вывод сообщений при наличии ошибок с созданием файла пользователя при регистрации
+            // или с загрузкой данных из него при авторизации.
+            // В таком случае не пускаем в приложение.
+            printlnRed(e.getMessage());
         }
     }
 
-    private User handleRegistration() throws CancellationRequestedException {
+    private User handleRegistration() throws CancellationRequestedException, IOException {
         String inputNewUsername;
         String inputNewPassword;
 
@@ -81,11 +88,11 @@ public class AuthorizationMenu extends Menu {
                 printlnRed(e.getMessage());
             }
         }
-
+        // Данный вызов может выбрасывать IOException
         return AuthorizationService.registerUser(inputNewUsername, inputNewPassword);
     }
 
-    private User handleLogInToAccount() throws CancellationRequestedException {
+    private User handleLogInToAccount() throws CancellationRequestedException, IOException {
         String inputExistingUsername;
 
         while (true) {
@@ -116,7 +123,7 @@ public class AuthorizationMenu extends Menu {
                 printlnRed(e.getMessage());
             }
         }
-
+        // Данный вызов может выбрасывать IOException
         return AuthorizationService.logInToAccount(inputExistingUsername);
     }
 }

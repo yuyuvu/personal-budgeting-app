@@ -7,6 +7,7 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedEx
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.*;
@@ -194,7 +195,12 @@ public class IncomeAndExpensesManagementMenu extends Menu {
         }
 
         // Перевод
-        WalletOperationsService.transferMoneyToAnotherUser(PersonalBudgetingApp.getCurrentAppUser(), anotherUser, amount);
+        try {
+            WalletOperationsService.transferMoneyToAnotherUser(PersonalBudgetingApp.getCurrentAppUser(), anotherUser, amount);
+        } catch (IOException e) {
+            printlnRed(e.getMessage());
+            return;
+        }
         printlnGreen(String.format("Перевод пользователю \"%s\" на сумму %.2f успешно осуществлён!", anotherUser, amount));
     }
 }
