@@ -1,35 +1,53 @@
 package com.github.yuyuvu.personalbudgetingapp.appservices;
 
+import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
  * Класс ConfigManager - небольшой упрощённый менеджер конфигурации для приложения. Добавлен только
  * для возможности скрывать / включать обратно уведомления, так как они могут сильно загромождать
- * вывод.
+ * вывод. Настройки уведомлений специально сбрасываются при перезапуске приложения. При желании их
+ * можно было бы также считывать из файла пользователя, как и данные кошелька вместе с данными для
+ * аутентификации.
  */
 public class ConfigManager {
-  private final Properties appProperties = new Properties();
+  private static final HashMap<String, Properties> propertiesForUsers = new HashMap<>();
+
+  /** Геттер для propertiesForUsers. */
+  private static HashMap<String, Properties> getPropertiesForUsers() {
+    return propertiesForUsers;
+  }
+
+  /** Получение настроек для текущего пользователя. */
+  private static Properties getPropertiesForCurrentUser() {
+    return getPropertiesForUsers().get(PersonalBudgetingApp.getCurrentAppUser().getUsername());
+  }
 
   /**
-   * Конструктор, который используется для возвращения настроек в значение по умолчанию при заходе в
-   * аккаунт какого-либо пользователя.
+   * Метод, который используется для создания объекта настроек и установления настроек в значение по
+   * умолчанию при первом заходе в аккаунт какого-либо пользователя.
    */
-  public ConfigManager() {
-    appProperties.setProperty("app.show.notifications", "true");
+  public static void makeAppConfigOnFirstLogin() {
+    if (getPropertiesForCurrentUser() == null) {
+      getPropertiesForUsers()
+          .put(PersonalBudgetingApp.getCurrentAppUser().getUsername(), new Properties());
+      getPropertiesForCurrentUser().setProperty("app.show.notifications", "true");
+    }
   }
 
   /** Метод для проверки текущего значения настройки уведомлений. */
-  public String checkNotificationsConfig() {
-    return appProperties.getProperty("app.show.notifications");
+  public static String checkNotificationsConfigForCurrentUser() {
+    return getPropertiesForCurrentUser().getProperty("app.show.notifications");
   }
 
   /** Метод для обращения текущего значения настройки уведомлений. */
-  public boolean reverseNotificationsConfig() {
-    if (checkNotificationsConfig().equals("true")) {
-      appProperties.setProperty("app.show.notifications", "false");
+  public static boolean reverseNotificationsConfigForCurrentUser() {
+    if (checkNotificationsConfigForCurrentUser().equals("true")) {
+      getPropertiesForCurrentUser().setProperty("app.show.notifications", "false");
       return false;
     } else {
-      appProperties.setProperty("app.show.notifications", "true");
+      getPropertiesForCurrentUser().setProperty("app.show.notifications", "true");
       return true;
     }
   }
