@@ -2,10 +2,12 @@ package com.github.yuyuvu.personalbudgetingapp.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * Класс User используется для более наглядного разделения логики работы авторизации и операций с
- * кошельком. <br>
+ * кошельком. Его объекты хранят в себе имя, данные для авторизации, собственный экземпляр настроек
+ * приложения и привязанный кошелёк. <br>
  * Также выделение пользователя отдельно от его кошелька позволяет более удобно работать с
  * сохранением и загрузкой снимков состояния и переводами между пользователями. <br>
  * В логике управления личными финансами используется только для получения привязанного экземпляра
@@ -15,15 +17,17 @@ import java.util.Arrays;
 public class User {
   private String username;
   private String[] passwordData;
+  private Properties userAppConfig;
   private Wallet wallet;
 
   /** Данный конструктор должен использоваться только библиотекой Jackson для десериализации. */
   private User() {}
 
   /** Данный конструктор используется при создании нового пользователя в AuthorizationService. */
-  public User(String username, String[] passwordData) {
+  public User(String username, String[] passwordData, Properties userAppConfig) {
     this.username = username;
     this.passwordData = passwordData;
+    this.userAppConfig = userAppConfig;
     this.wallet = new Wallet(false);
   }
 
@@ -35,6 +39,11 @@ public class User {
   /** Метод для получения экземпляра кошелька, который привязан к данному пользователю. */
   public Wallet getWallet() {
     return wallet;
+  }
+
+  /** Метод для получения экземпляра настроек данного пользователя. */
+  public Properties getUserAppConfig() {
+    return userAppConfig;
   }
 
   /** Метод для смены экземпляра кошелька при загрузке снимка состояния из файла. */

@@ -1,53 +1,61 @@
 package com.github.yuyuvu.personalbudgetingapp.appservices;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
-import java.util.HashMap;
 import java.util.Properties;
 
 /**
- * Класс ConfigManager - небольшой упрощённый менеджер конфигурации для приложения. Добавлен только
- * для возможности скрывать / включать обратно уведомления, так как они могут сильно загромождать
- * вывод. Настройки уведомлений специально сбрасываются при перезапуске приложения. При желании их
- * можно было бы также считывать из файла пользователя, как и данные кошелька вместе с данными для
- * аутентификации.
+ * Класс ConfigManager - менеджер конфигурации для приложения. Сейчас добавлен только для
+ * возможности скрывать / включать обратно уведомления, так как они могут сильно загромождать вывод.
+ * <br>
+ * Настройки каждого пользователя хранятся в объекте User и сохраняются между перезапусками
+ * аналогично данным кошелька и данным для аутентификации.
  */
 public class ConfigManager {
-  private static final HashMap<String, Properties> propertiesForUsers = new HashMap<>();
-
-  /** Геттер для propertiesForUsers. */
-  private static HashMap<String, Properties> getPropertiesForUsers() {
-    return propertiesForUsers;
+  /** Перечисление для хранения единообразных имён для отдельных настроек. */
+  private enum ConfigProperties {
+    APP_SHOW_NOTIFICATIONS
   }
 
-  /** Получение настроек для текущего пользователя. */
-  private static Properties getPropertiesForCurrentUser() {
-    return getPropertiesForUsers().get(PersonalBudgetingApp.getCurrentAppUser().getUsername());
+  /**
+   * Перечисление для возможности установления и проверки заранее ожидаемых значений для отдельных
+   * настроек.
+   */
+  public enum BooleanPropertiesValues {
+    TRUE,
+    FALSE
   }
 
   /**
    * Метод, который используется для создания объекта настроек и установления настроек в значение по
-   * умолчанию при первом заходе в аккаунт какого-либо пользователя.
+   * умолчанию при регистрации какого-либо нового пользователя.
    */
-  public static void makeAppConfigOnFirstLogin() {
-    if (getPropertiesForCurrentUser() == null) {
-      getPropertiesForUsers()
-          .put(PersonalBudgetingApp.getCurrentAppUser().getUsername(), new Properties());
-      getPropertiesForCurrentUser().setProperty("app.show.notifications", "true");
-    }
+  public static Properties makeAppConfigOnRegistration() {
+    Properties defaultProperties = new Properties();
+    defaultProperties.setProperty(
+        ConfigProperties.APP_SHOW_NOTIFICATIONS.name(), BooleanPropertiesValues.TRUE.name());
+    return defaultProperties;
   }
 
   /** Метод для проверки текущего значения настройки уведомлений. */
   public static String checkNotificationsConfigForCurrentUser() {
-    return getPropertiesForCurrentUser().getProperty("app.show.notifications");
+    return PersonalBudgetingApp.getCurrentAppUser()
+        .getUserAppConfig()
+        .getProperty(ConfigProperties.APP_SHOW_NOTIFICATIONS.name());
   }
 
-  /** Метод для обращения текущего значения настройки уведомлений. */
+  /** Метод для обращения текущего значения настройки уведомлений на противоположное. */
   public static boolean reverseNotificationsConfigForCurrentUser() {
-    if (checkNotificationsConfigForCurrentUser().equals("true")) {
-      getPropertiesForCurrentUser().setProperty("app.show.notifications", "false");
+    if (checkNotificationsConfigForCurrentUser().equals(BooleanPropertiesValues.TRUE.name())) {
+      PersonalBudgetingApp.getCurrentAppUser()
+          .getUserAppConfig()
+          .setProperty(
+              ConfigProperties.APP_SHOW_NOTIFICATIONS.name(), BooleanPropertiesValues.FALSE.name());
       return false;
     } else {
-      getPropertiesForCurrentUser().setProperty("app.show.notifications", "true");
+      PersonalBudgetingApp.getCurrentAppUser()
+          .getUserAppConfig()
+          .setProperty(
+              ConfigProperties.APP_SHOW_NOTIFICATIONS.name(), BooleanPropertiesValues.TRUE.name());
       return true;
     }
   }

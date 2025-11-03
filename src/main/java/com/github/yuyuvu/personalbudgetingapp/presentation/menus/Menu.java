@@ -9,6 +9,7 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.skipLine;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
+import com.github.yuyuvu.personalbudgetingapp.appservices.ConfigManager;
 import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
@@ -29,11 +30,17 @@ public abstract class Menu {
 
   private String currentInput;
 
-  /** Метод, который должен отображать меню. Также отвечает за вывод уведомлений перед меню. */
+  /**
+   * Метод, который должен отображать меню. Также отвечает за вывод уведомлений перед меню, если
+   * пользователь их не отключил.
+   */
   public void showMenu() {
-    print(
-        NotificationsService.checkAndPrepareNotifications(
-            PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+    if (ConfigManager.checkNotificationsConfigForCurrentUser()
+        .equals(ConfigManager.BooleanPropertiesValues.TRUE.name())) {
+      print(
+          NotificationsService.checkAndPrepareNotifications(
+              PersonalBudgetingApp.getCurrentAppUser().getWallet()));
+    }
     skipLine();
   }
 
@@ -92,7 +99,7 @@ public abstract class Menu {
 
   /**
    * Метод для обработки служебных команд на любом этапе работы приложения. Выводит справку,
-   * позволяет отменить текущее действие и вернуться в меню и т.д.
+   * позволяет отменить текущее действие, вернуться в меню, скрыть / отобразить уведомления и т.д.
    */
   public static void checkUserInputForAppGeneralCommands(String userInput)
       throws CancellationRequestedException {
@@ -101,11 +108,85 @@ public abstract class Menu {
       case "--help" -> {
         printlnCyan(
             """
+                        ----------------------------------------------------------------------------
                         Помощь по приложению:
+                        ----------------------------------------------------------------------------
+                        Приложение работает по принципу ввода цифровых команд в консоль.
+                        Для получения доступа к требуемой пользователю функции нужно последовательно
+                        пройти через ряд меню, вводя цифру интересующего пункта.
+                        На каждом шаге работы приложения для пользователя выводятся подсказки,
+                        что сейчас можно или нужно сделать.
+                        Приложение проверяет ввод пользователя, и, в случае предоставления
+                        некорректных значений для меню или параметров для функций, выводит
+                        информативное сообщение об ошибке и повторяет запрос ввода.
+                        Помимо ввода цифр или запрашиваемых параметров для отдельных функций,
+                        на любом этапе работы приложения можно вводить служебные команды.
+                        
+                        1. Например, если имеющийся пользователь хочет сохранить в файл список всех
+                        добавленных операций дохода, нужно последовательно ввести:
+                        2 (вход в аккаунт) -> логин и пароль (по отображаемым подсказкам) ->
+                        1 (меню базовой аналитики) -> 5 (меню расширенной аналитики) -> 3 (вывод
+                        всех операций дохода) -> 2 (сохранить в файл)
+                        
+                        2. Если имеющийся пользователь хочет импортировать данные снимка состояния
+                        заданных бюджетов по расходам:
+                        2 (вход в аккаунт) -> логин и пароль (по отображаемым подсказкам) ->
+                        4 (меню экспорта и импорта) -> 4 (экспорт / импорт бюджетов) ->
+                        2 (импорт) -> да (подтвердить импорт) -> путь до снимка состояния.
+                        
+                        3. Пользователь находится в меню экспорта и хочет отключить приложение,
+                        не возвращаясь в меню авторизации: для этого нужно ввести --off.
+                        
+                        Служебные команды приложения:
                         --cancel - отмена текущего выбора и возврат в предыдущее меню;
                         --help - вывод помощи по приложению;
+                        --hide_notifications - скрыть уведомления во всём приложении;
+                        --show_notifications - вернуть уведомления во всём приложении;
                         --logout - выход из текущего аккаунта пользователя;
-                        --off - выключение приложения.""");
+                        --off - выключение приложения.
+                        
+                        Приложение предназначено для отслеживания личных финансов.
+                        Оно позволяет:
+                        1) Добавлять доходы и расходы по категориям.
+                        2) Устанавливать бюджеты для отдельных категорий расходов.
+                        3) Управлять категориями и бюджетами.
+                        4) Выводить аналитику по ранее добавленным операциям.
+                        5) Отслеживать перерасход и просматривать остаток возможных расходов
+                        по определённым категориям.
+                        6) Выводить информацию с учётом фильтрации по категориям и периодам.
+                        7) Выводить отсортированные списки всех добавленных операций.
+                        8) Экспортировать и импортировать все или отдельные данные
+                        кошелька пользователя.
+                        9) Учитывать переводы другим пользователям.
+                        10) Сохранять отчёты по кошельку в файл.
+                        11) Просматривать уведомления, которые выводятся в случае перерасхода
+                        бюджетов, наличия отрицательного баланса и при выполнении других
+                        условий.
+                        12) Отключать и возвращать отображение уведомлений.
+                        13) Авторизоваться в аккаунте после полного перезапуска приложения
+                        с сохранением всех данных пользователя.
+                        14) Регистрировать любое количество пользователей с разными данными.
+                        ----------------------------------------------------------------------------""");
+        throw new CancellationRequestedException();
+      }
+      case "--hide_notifications" -> {
+        if (ConfigManager.checkNotificationsConfigForCurrentUser()
+            .equals(ConfigManager.BooleanPropertiesValues.TRUE.name())) {
+          ConfigManager.reverseNotificationsConfigForCurrentUser();
+          printlnCyan("Теперь уведомления скрыты во всём приложении.");
+        } else {
+          printlnCyan("Уведомления уже скрыты во всём приложении.");
+        }
+        throw new CancellationRequestedException();
+      }
+      case "--show_notifications" -> {
+        if (ConfigManager.checkNotificationsConfigForCurrentUser()
+            .equals(ConfigManager.BooleanPropertiesValues.FALSE.name())) {
+          ConfigManager.reverseNotificationsConfigForCurrentUser();
+          printlnCyan("Теперь уведомления снова будут отображаться во всём приложении.");
+        } else {
+          printlnCyan("Уведомления уже отображаются во всём приложении.");
+        }
         throw new CancellationRequestedException();
       }
       case "--logout" -> {

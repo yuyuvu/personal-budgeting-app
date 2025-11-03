@@ -84,7 +84,7 @@ public class AuthorizationService {
    * Метод для регистрации нового пользователя, если проверки имени и пароля прошли успешно. Создаёт
    * новую соль для пользователя. Создаёт новый объект пользователя. Сохраняет хэш и соль в
    * loadedUsernamesAndHashesAndSalts. Создаёт файл для хранения данных пользователя: кошелька и
-   * данных для аутентификации.
+   * данных для аутентификации. Также задаёт новому пользователю настройки приложения по-умолчанию.
    */
   public static User registerUser(String inputNewUsername, String inputNewPassword)
       throws IOException {
@@ -93,7 +93,8 @@ public class AuthorizationService {
     String[] passwordData = new String[] {newHash, newSalt};
     getLoadedUsernamesAndHashesAndSalts().put(inputNewUsername, passwordData);
 
-    User newUser = new User(inputNewUsername, passwordData);
+    User newUser =
+        new User(inputNewUsername, passwordData, ConfigManager.makeAppConfigOnRegistration());
 
     // Следующие два вызова могут выбрасывать IOException
     DataPersistenceService.makeNewUserWalletFile(inputNewUsername);

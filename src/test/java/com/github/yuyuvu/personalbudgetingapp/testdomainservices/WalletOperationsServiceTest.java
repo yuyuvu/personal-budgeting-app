@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,11 +81,11 @@ public class WalletOperationsServiceTest {
   @Test
   void transferMoneyToAnotherUserTest() {
     // Потенциальный текущий пользователь приложения.
-    User sender = new User("username1", new String[] {"hash", "salt"});
+    User sender = new User("username1", new String[] {"hash", "salt"}, new Properties());
 
     // Потенциальный уже имеющийся пользователь приложения, у которого есть файл кошелька.
     // Имитируем наличие файла кошелька получателя и после этого тестируем нужный метод.
-    User recipient = new User("username2", new String[] {"hash", "salt"});
+    User recipient = new User("username2", new String[] {"hash", "salt"}, new Properties());
 
     // Никаких операций до теста нет
     Assertions.assertEquals(0, sender.getWallet().getWalletOperations().size());
