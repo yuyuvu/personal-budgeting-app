@@ -38,7 +38,7 @@ public class AppMainMenu extends Menu {
       switch (getCurrentUserInput()) {
         case "1" -> PersonalBudgetingApp.setCurrentMenu(new AnalyticsMenu());
         case "2" -> PersonalBudgetingApp.setCurrentMenu(new IncomeAndExpensesManagementMenu());
-        case "3" -> PersonalBudgetingApp.setCurrentMenu(new BudgetingManagementMenu());
+        case "3" -> PersonalBudgetingApp.setCurrentMenu(new CategoriesManagementMenu());
         case "4" -> PersonalBudgetingApp.setCurrentMenu(new CheckpointsSaveAndLoadMenu());
         case "5" -> logOutOfCurrentUser(true);
         default -> printlnYellow("Некорректный ввод, введите цифру от 1 до 5.");

@@ -10,11 +10,17 @@ import java.util.stream.Collectors;
 
 /**
  * Класс отвечает за основную логику приложения, связанную с доходами и расходами. В нём содержатся
- * методы для добавления и удаления доходов или расходов. А также различные методы для совершения
- * расчётов на основе добавленных операций. Помимо этого, методы класса позволяют по-разному
- * фильтровать операции кошелька, получать срезы операций или итоговые суммы по срезам операций.
+ * методы для добавления и удаления доходов или расходов, смены названия их категорий, объединения
+ * категорий доходов или расходов. <br>
+ * Также он включает различные методы для совершения расчётов на основе добавленных операций. Методы
+ * класса позволяют по-разному фильтровать операции кошелька, получать срезы операций или итоговые
+ * суммы по срезам операций.
  */
 public class WalletOperationsService {
+
+  /*
+   * Методы для изменения списка операций, влияющие на данные кошелька
+   */
 
   /**
    * Метод добавляет доход определённой категории и суммы в основной список всех операций кошелька.
@@ -39,14 +45,6 @@ public class WalletOperationsService {
   }
 
   /**
-   * Метод удаляет отдельный добавленный расход или доход (не категорию) по уникальному ID этой
-   * операции из основного списка всех операций кошелька.
-   */
-  public static boolean removeWalletOperationById(Wallet wallet, long id) {
-    return wallet.getWalletOperations().removeIf(wo -> wo.getId() == id);
-  }
-
-  /**
    * Метод отвечает за операцию перевода между кошельками. Создаёт расход у одного экземпляра
    * кошелька и доход на аналогичную сумму у другого экземпляра кошелька. <br>
    * Для упрощения тестирования он же отвечает за загрузку данных кошелька другого пользователя и
@@ -67,6 +65,73 @@ public class WalletOperationsService {
         LocalDateTime.now());
     DataPersistenceService.saveUserdataToFile(anotherUser);
   }
+
+  /**
+   * Метод удаляет отдельный добавленный расход или доход (не категорию) по уникальному ID этой
+   * операции из основного списка всех операций кошелька.
+   */
+  public static boolean removeWalletOperationById(Wallet wallet, long id) {
+    return wallet.getWalletOperations().removeIf(wo -> wo.getId() == id);
+  }
+
+  /**
+   * Метод изменяет название определённой категории у всех операций определённого типа (доходов или
+   * расходов). Если это расходы, то меняет название категории и у уже существующего
+   * соответствующего бюджета.
+   */
+  public static void changeNameForCategory(
+      Wallet wallet, String category, String newName, boolean isIncome) {
+    // Смена названия в хэш-таблице с лимитами (в случае, если это расход с лимитом)
+    if ((!isIncome) && BudgetingService.checkExpensesCategoryLimitExistence(wallet, category)) {
+      double limit = wallet.getBudgetCategoriesAndLimits().get(category);
+      wallet.getBudgetCategoriesAndLimits().remove(category);
+      wallet.getBudgetCategoriesAndLimits().put(newName, limit);
+    }
+
+    // Смена названия в массиве операций пользователя
+    for (Wallet.WalletOperation wo : wallet.getWalletOperations()) {
+      if (wo.getCategory().equals(category) && wo.isIncome() == isIncome) {
+        wo.setCategory(newName);
+      }
+    }
+  }
+
+  /**
+   * Метод объединяет несколько категорий расходов в одну категорию. Также объединяет уже
+   * существующие соответствующие бюджеты.
+   */
+  public static void mergeExpensesCategories(
+      Wallet wallet, String newCategoryName, String... oldCategories) {
+    // Замена множества старых лимитов на один единый
+    double newLimit = BudgetingService.getLimitByCategories(wallet, false, oldCategories);
+    for (String category : oldCategories) {
+      wallet.getBudgetCategoriesAndLimits().remove(category);
+    }
+    wallet.getBudgetCategoriesAndLimits().put(newCategoryName, newLimit);
+
+    // Смена названий старых категорий на одно новое в массиве операций пользователя
+    for (Wallet.WalletOperation wo : wallet.getWalletOperations()) {
+      for (String category : oldCategories) {
+        if (wo.getCategory().equals(category)) {
+          wo.setCategory(newCategoryName);
+        }
+      }
+    }
+  }
+
+  /** Метод объединяет несколько категорий доходов в одну категорию. */
+  public static void mergeIncomeCategories(
+      Wallet wallet, String newCategoryName, String... oldCategories) {
+    // Так как в случае доходов не нужно работать с лимитами, можем применить метод
+    // changeNameForCategory
+    for (String category : oldCategories) {
+      changeNameForCategory(wallet, category, newCategoryName, true);
+    }
+  }
+
+  /*
+   * Методы для расчётов и аналитики, не влияющие на данные кошелька
+   */
 
   /**
    * Метод находит в кошельке операции (Wallet.WalletOperation) нужного типа (расход) и одной

@@ -15,10 +15,14 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Класс отвечает за формирование отчётов по данным операций и бюджетов кошелька. Меню запрашивают у
+ * AnalyticsService определённые отчёты на основе ввода пользователя и выводят их в консоль либо
+ * сохраняют в файл.
+ */
 public class AnalyticsService {
 
-  // Методы печати отчётов в консоль
-
+  /** Метод собирает основной отчёт-сводку по всем данным кошелька. */
   public static String makeTotalSummary(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result.append(makeBalanceSummary(wallet));
@@ -28,6 +32,7 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /** Метод собирает краткий отчёт-сводку по балансу кошелька. */
   public static String makeBalanceSummary(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     double balance = wallet.getBalance();
@@ -45,6 +50,9 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку по общей сумме расходов и суммам расходов по отдельным категориям.
+   */
   public static String makeExpensesSummary(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result
@@ -75,6 +83,9 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку по общей сумме доходов и суммам доходов по отдельным категориям.
+   */
   public static String makeIncomeSummary(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result
@@ -105,6 +116,10 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку по имеющимся установленным бюджетам и остаткам возможных трат по
+   * категориям расходов.
+   */
   public static String makeBudgetCategoriesAndLimitsSummary(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result.append(paintCyan("Бюджет по категориям:")).append("\n");
@@ -138,6 +153,10 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку по всем имеющимся отдельным операциям дохода с указанием их ID,
+   * суммы, категории, а также даты и времени, с которыми они были учтены.
+   */
   public static String makeIncomeWalletOperationsList(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result
@@ -173,6 +192,10 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку по всем имеющимся отдельным операциям расхода с указанием их ID,
+   * суммы, категории, а также даты и времени, с которыми они были учтены.
+   */
   public static String makeExpensesWalletOperationsList(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result
@@ -208,12 +231,17 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку отдельно по доходам или по расходам с фильтрацией операций по
+   * категориям.
+   */
   public static String makeSummaryByCategories(
       Wallet wallet, boolean isIncome, ArrayList<String> requestedCategories) {
     StringBuilder result = new StringBuilder();
-    // ArrayList<String> warnings = new ArrayList<>();
     ArrayList<String> incorrectCategories = new ArrayList<>();
     result.append("\n");
+
+    // Проверяем наличие операций по запрошенным категориям, если их нет, то предупреждаем об этом
     for (String category : requestedCategories) {
       if (isIncome) {
         if (!wallet.getWalletOperationsIncomeCategories().contains(category)) {
@@ -225,6 +253,8 @@ public class AnalyticsService {
         }
       }
     }
+
+    // Сообщение-предупреждение
     if (!incorrectCategories.isEmpty()) {
       result.append(
           paintPurple(
@@ -233,9 +263,9 @@ public class AnalyticsService {
                       + "по которым ещё не было учтено ни одного %1$s: %s.%n",
                   (isIncome ? "дохода" : "расхода"),
                   incorrectCategories.toString().replaceAll("[\\[\\]]", ""))));
-      // incorrectCategories.forEach(category -> {requestedCategories.remove(category);});
     }
 
+    // Сумма по операциям по всем запрошенным категориям
     result
         .append(
             paintGreen(
@@ -251,6 +281,7 @@ public class AnalyticsService {
                             wallet, requestedCategories.toArray(new String[0]))))))
         .append("\n");
 
+    // Сумма по операциям по отдельным запрошенным категориям
     result
         .append(
             paintCyan(
@@ -259,6 +290,7 @@ public class AnalyticsService {
                     (isIncome ? "Доходы" : "Расходы"))))
         .append("\n");
 
+    // Если нет ни одной запрошенной категории, то уведомляем об этом
     if (WalletOperationsService.getWalletOperationsByCategories(
             wallet, isIncome, requestedCategories.toArray(new String[0]))
         .isEmpty()) {
@@ -271,6 +303,7 @@ public class AnalyticsService {
       return result.toString();
     }
 
+    // Значение суммы по операциям по отдельным запрошенным категориям
     if (isIncome) {
       for (String category : wallet.getWalletOperationsIncomeCategories()) {
         if (requestedCategories.contains(category)) {
@@ -299,6 +332,7 @@ public class AnalyticsService {
       }
       // Также выводим лимиты по запрошенным категориям расхода, если такие есть.
       result.append(paintCyan("Бюджет по запрошенным категориям:")).append("\n");
+
       // Суммарный бюджет по запрошенным категориям
       result
           .append(
@@ -318,7 +352,8 @@ public class AnalyticsService {
       } else {
         result.append(paintGreen(String.valueOf(remainderTotal))).append("\n");
       }
-      // Бюджет по отдельным запрошенным категориям
+
+      // Бюджет по отдельным запрошенным категориям, если хотя бы 1 бюджет по ним есть
       boolean doRequestedCategoriesHaveLimits =
           requestedCategories.stream()
               .anyMatch(c -> wallet.getBudgetCategoriesAndLimits().containsKey(c));
@@ -334,6 +369,8 @@ public class AnalyticsService {
             .append("\n");
         return result.toString();
       }
+
+      // Значение бюджета по отдельным запрошенным категориям
       result.append(paintGreen("Бюджеты по отдельным запрошенным категориям:")).append("\n");
       for (String category : requestedCategories) {
         if (wallet.getBudgetCategoriesAndLimits().containsKey(category)) {
@@ -363,6 +400,10 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод собирает отчёт-сводку по всем категориям и операциям кошелька с фильтрацией операций по
+   * периоду.
+   */
   public static String makeSummaryByPeriod(
       Wallet wallet, LocalDateTime periodStart, LocalDateTime periodEnd) {
     StringBuilder result = new StringBuilder();
@@ -482,6 +523,10 @@ public class AnalyticsService {
     return result.toString();
   }
 
+  /**
+   * Метод для вывода названий категорий с большой буквы, так как внутри приложения они всегда
+   * хранятся в нижнем регистре.
+   */
   public static String capitalizeFirstLetter(String str) {
     if (str == null || str.isEmpty()) {
       return str;
