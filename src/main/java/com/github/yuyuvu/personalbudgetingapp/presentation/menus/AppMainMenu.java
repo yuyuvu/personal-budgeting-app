@@ -8,6 +8,10 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 
+/**
+ * AppMainMenu направляет пользователя в другие меню, отвечающие за более специализированный
+ * функционал. Также позволяет выйти из аккаунта. Выводит уведомления.
+ */
 public class AppMainMenu extends Menu {
 
   @Override

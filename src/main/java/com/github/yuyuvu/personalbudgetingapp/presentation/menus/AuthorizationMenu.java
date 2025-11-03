@@ -16,6 +16,11 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.InvalidCredentialsExcep
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import java.io.IOException;
 
+/**
+ * AuthorizationMenu отвечает за предоставление доступа к функциям регистрации и аутентификации.
+ * Также позволяет выключить приложение. Не выводит уведомления, так как во время его показа
+ * отсутствует загруженный пользователь.
+ */
 public class AuthorizationMenu extends Menu {
 
   @Override
@@ -57,6 +62,10 @@ public class AuthorizationMenu extends Menu {
     }
   }
 
+  /**
+   * Обработка ввода для регистрации. Валидация введённых значений. При успехе вызов метода
+   * регистрации registerUser из AuthorizationService.
+   */
   private User handleRegistration() throws CancellationRequestedException, IOException {
     String inputNewUsername;
     String inputNewPassword;
@@ -94,6 +103,10 @@ public class AuthorizationMenu extends Menu {
     return AuthorizationService.registerUser(inputNewUsername, inputNewPassword);
   }
 
+  /**
+   * Обработка ввода для входа в имеющийся аккаунт. Валидация введённых значений. При успехе вызов метода
+   * аутентификации logInToAccount из AuthorizationService.
+   */
   private User handleLogInToAccount() throws CancellationRequestedException, IOException {
     String inputExistingUsername;
 

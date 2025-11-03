@@ -17,6 +17,12 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedEx
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.io.IOException;
 
+/**
+ * AnalyticsMenu отвечает за предоставление доступа к функциям получения обобщённой информации по
+ * кошельку. Вызывает для пользователя нужные функции AnalyticsService, формирующие отчёты
+ * определённого типа. Печатает полученные от AnalyticsService данные в консоль или сохраняет в файл
+ * при помощи методов DataPersistenceService. Выводит уведомления.
+ */
 public class AnalyticsMenu extends Menu {
 
   @Override
@@ -46,11 +52,11 @@ public class AnalyticsMenu extends Menu {
       Wallet wallet = PersonalBudgetingApp.getCurrentAppUser().getWallet();
       switch (getCurrentUserInput()) {
         case "1" -> {
-          reportFormat = requestReportFormat();
-          if (reportFormat.isEmpty()) {
+          reportFormat = requestReportFormat(); // проверка желания вывода в консоль или в файл
+          if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
             print(AnalyticsService.makeTotalSummary(wallet));
-          } else if (reportFormat.equals(".txt")) {
+          } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
                 DataPersistenceService.saveAnalyticsReportToFile(
                     deleteColorsFromString(
@@ -62,10 +68,10 @@ public class AnalyticsMenu extends Menu {
         }
         case "2" -> {
           reportFormat = requestReportFormat();
-          if (reportFormat.isEmpty()) {
+          if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
             print(AnalyticsService.makeIncomeSummary(wallet));
-          } else if (reportFormat.equals(".txt")) {
+          } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
                 DataPersistenceService.saveAnalyticsReportToFile(
                     deleteColorsFromString(
@@ -77,10 +83,10 @@ public class AnalyticsMenu extends Menu {
         }
         case "3" -> {
           reportFormat = requestReportFormat();
-          if (reportFormat.isEmpty()) {
+          if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
             print(AnalyticsService.makeExpensesSummary(wallet));
-          } else if (reportFormat.equals(".txt")) {
+          } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
                 DataPersistenceService.saveAnalyticsReportToFile(
                     deleteColorsFromString(
@@ -92,10 +98,10 @@ public class AnalyticsMenu extends Menu {
         }
         case "4" -> {
           reportFormat = requestReportFormat();
-          if (reportFormat.isEmpty()) {
+          if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
             print(AnalyticsService.makeBudgetCategoriesAndLimitsSummary(wallet));
-          } else if (reportFormat.equals(".txt")) {
+          } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
                 DataPersistenceService.saveAnalyticsReportToFile(
                     deleteColorsFromString(

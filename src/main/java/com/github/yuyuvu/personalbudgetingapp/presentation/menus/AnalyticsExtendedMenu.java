@@ -23,6 +23,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * AnalyticsExtendedMenu отвечает за предоставление доступа к функциям получения информации с учётом
+ * фильтрации и вывода списков всех операций. Вызывает для пользователя нужные функции
+ * AnalyticsService, формирующие отчёты определённого типа, предварительно запрашивая у пользователя
+ * требуемые параметры и валидируя введённые пользователем данные на предмет некорректных значений.
+ * Выводит уведомления.
+ */
 public class AnalyticsExtendedMenu extends Menu {
 
   @Override
