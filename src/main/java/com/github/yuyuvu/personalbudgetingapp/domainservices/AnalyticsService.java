@@ -389,7 +389,7 @@ public class AnalyticsService {
                     "Общие доходы за указанный период: %s%.2f",
                     resetColor(),
                     WalletOperationsService.getWalletOperationsAmountsSum(
-                        incomeOperationsDuringPeriod))))
+                        incomeOperationsDuringPeriod, true))))
         .append("\n");
     result.append(paintCyan("Доходы по категориям за указанный период:")).append("\n");
     if (incomeOperationsDuringPeriod.isEmpty()) {
@@ -408,7 +408,8 @@ public class AnalyticsService {
                       String.format(
                           "\t- %s: %.2f",
                           capitalizeFirstLetter(category),
-                          WalletOperationsService.getWalletOperationsAmountsSum(foundOperations))))
+                          WalletOperationsService.getWalletOperationsAmountsSum(
+                              foundOperations, true))))
               .append("\n");
         }
       }
@@ -425,7 +426,7 @@ public class AnalyticsService {
                     "Общие расходы за указанный период: %s%.2f",
                     resetColor(),
                     WalletOperationsService.getWalletOperationsAmountsSum(
-                        expensesOperationsDuringPeriod))))
+                        expensesOperationsDuringPeriod, false))))
         .append("\n");
     result.append(paintCyan("Расходы по категориям за указанный период:")).append("\n");
     if (expensesOperationsDuringPeriod.isEmpty()) {
@@ -444,7 +445,8 @@ public class AnalyticsService {
                       String.format(
                           "\t- %s: %.2f",
                           capitalizeFirstLetter(category),
-                          WalletOperationsService.getWalletOperationsAmountsSum(foundOperations))))
+                          WalletOperationsService.getWalletOperationsAmountsSum(
+                              foundOperations, false))))
               .append("\n");
         }
       }

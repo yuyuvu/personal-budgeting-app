@@ -19,7 +19,16 @@ import java.util.stream.Stream;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Класс отвечает за сохранение данных в файловую систему и их загрузку из неё. Например, так
+ * сохраняются и загружаются данные кошелька пользователя после выхода из аккаунта и при авторизации
+ * в аккаунт. Здесь же сохраняются и загружаются файлы снимков состояния кошелька и отчёты. Также
+ * реализовано полное сохранение состояния кошельков после перезапуска приложения. После перезапуска
+ * можно снова заходить в уже имеющиеся аккаунты и видеть те же данные. Тем не менее во время работы
+ * приложения всё так же хранится в оперативной памяти, как и требуется по ТЗ.
+ */
 public class DataPersistenceService {
+  // Переменные для хранения путей до директорий с файлами приложения
   private static final Path relationalPathToAppdata = Path.of("personal_budgeting_appdata");
   private static final Path relationalPathToUserdataFiles =
       relationalPathToAppdata.resolve(Path.of("userdata_wallets"));
@@ -27,9 +36,12 @@ public class DataPersistenceService {
       relationalPathToAppdata.resolve(Path.of("analytics_reports"));
   private static final Path relationalPathToSnapshotsFiles =
       relationalPathToAppdata.resolve(Path.of("userdata_snapshots"));
+
+  // Данные кошельков сохраняются в формате json
   private static final String dataFileExtension = ".json";
   private static final ObjectMapper jsonObjectMapper = new ObjectMapper();
 
+  // При загрузке класса создаются директории, где хранятся файлы приложения
   static {
     try {
       Files.createDirectories(relationalPathToAppdata);
@@ -44,6 +56,11 @@ public class DataPersistenceService {
     }
   }
 
+  /**
+   * Метод считывает данные кошелька пользователя, а также данные для авторизации из ранее
+   * сохранённого файла с данными пользователя. Метод десериализует считанные из json-файла данные в
+   * объект класса User. Используется при авторизации (в AuthorizationService) и при переводах.
+   */
   public static User loadUserdataFromFile(String user) throws IOException {
     User readUser;
     try (FileReader fr =
@@ -55,6 +72,11 @@ public class DataPersistenceService {
     return readUser;
   }
 
+  /**
+   * Метод сохраняет данные кошелька пользователя, а также данные для авторизации в ранее созданный
+   * файл для данных пользователя. Метод сериализует объект класса User в json-формат. Используется
+   * при регистрации (в AuthorizationService), выходе из аккаунта (Menu) и при переводах.
+   */
   public static void saveUserdataToFile(User user) throws IOException {
     try (FileWriter fw =
         new FileWriter(
@@ -68,8 +90,14 @@ public class DataPersistenceService {
     }
   }
 
+  /**
+   * Метод, который используется для получения уже имеющихся имён пользователей, хэшей и солей
+   * паролей из файлов пользователей при загрузке класса AuthorizationService, чтобы можно было
+   * входить в имеющиеся аккаунты после полного перезапуска приложения.
+   */
   public static HashMap<String, String[]> getRegisteredUsernamesAndHashesAndSalts()
       throws Exception {
+    // Перебор файлов с данными кошельков, где также хранятся данные для авторизации
     try (Stream<Path> files = Files.list(relationalPathToUserdataFiles)) {
       return (HashMap<String, String[]>)
           files
@@ -126,18 +154,30 @@ public class DataPersistenceService {
     }
   }
 
-  public static void makeNewUserWalletFile(String inputNewUsername) throws IOException {
+  /**
+   * Метод, создающий файл для конкретного пользователя, для хранения данных кошелька и данных для
+   * авторизации. Используется при регистрации. Выделение данного метода отдельно также позволяет
+   * легче тестировать переводы между пользователями.
+   */
+  public static String makeNewUserWalletFile(String inputNewUsername) throws IOException {
+    String pathWhereSaved = null;
     try {
       Path potentialPath =
           relationalPathToUserdataFiles.resolve(inputNewUsername + dataFileExtension);
       if (!Files.exists(potentialPath)) {
         Files.createFile(potentialPath);
+        pathWhereSaved = potentialPath.toString();
       }
     } catch (IOException e) {
       throw new IOException("Проблемы с созданием файла нового пользователя.");
     }
+    return pathWhereSaved;
   }
 
+  /**
+   * Метод, сохраняющий данные отчёта из AnalyticsService в текстовый файл. Используется в
+   * AnalyticsMenu и AnalyticsExtendedMenu.
+   */
   public static String saveAnalyticsReportToFile(
       String fileContent, String fileName, String fileExtension) throws IOException {
     Path pathWhereSave = relationalPathToAnalyticsReportsFiles.resolve(fileName + fileExtension);
@@ -153,6 +193,10 @@ public class DataPersistenceService {
     return pathWhereSave.toString();
   }
 
+  /**
+   * Метод, сохраняющий данные снимка состояния кошелька пользователя, подготовленные
+   * SnapshotsService, в json-файл. Используется в CheckpointsSaveAndLoadMenu.
+   */
   public static String saveSnapshotToFile(String fileContent, String fileName) throws IOException {
     Path pathWhereSave = relationalPathToSnapshotsFiles.resolve(fileName + dataFileExtension);
     try {
@@ -167,6 +211,10 @@ public class DataPersistenceService {
     return pathWhereSave.toString();
   }
 
+  /**
+   * Метод, загружающий данные из ранее созданного снимка состояния кошелька пользователя из
+   * json-файла. Используется в CheckpointsSaveAndLoadMenu.
+   */
   public static String loadSnapshotFromFile(String filePath)
       throws CheckedIllegalArgumentException, IOException {
     String result;
