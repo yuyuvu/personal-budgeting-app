@@ -32,6 +32,7 @@ import java.util.Arrays;
  */
 public class AnalyticsExtendedMenu extends Menu {
 
+  /** Показ меню. */
   @Override
   public void showMenu() {
     super.showMenu();
@@ -46,6 +47,7 @@ public class AnalyticsExtendedMenu extends Menu {
     printYellow("Введите номер желаемого действия: ");
   }
 
+  /** Направление на нужную функцию. */
   @Override
   public void handleUserInput() {
     String displayedUserNameForReports =
@@ -57,11 +59,11 @@ public class AnalyticsExtendedMenu extends Menu {
       Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
       Wallet wallet = PersonalBudgetingApp.getCurrentAppUser().getWallet();
       switch (getCurrentUserInput()) {
-        case "1" -> {
-          reportFormat = requestReportFormat();
-          if (reportFormat.isEmpty()) {
+        case "1" -> { // отчет с фильтрацией по категориям
+          reportFormat = requestReportFormat(); // проверка желания вывода в консоль или в файл
+          if (reportFormat.isEmpty()) { // вывод в консоль
             print(handleRequestByCategories(wallet));
-          } else if (reportFormat.equals(".txt")) {
+          } else if (reportFormat.equals(".txt")) { // вывод в файл
             String reportContent = handleRequestByCategories(wallet);
             pathToReportFile =
                 DataPersistenceService.saveAnalyticsReportToFile(
@@ -71,7 +73,7 @@ public class AnalyticsExtendedMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
-        case "2" -> {
+        case "2" -> { // отчет с фильтрацией по периоду
           reportFormat = requestReportFormat();
           if (reportFormat.isEmpty()) {
             print(handleRequestByPeriod(wallet));
@@ -85,7 +87,7 @@ public class AnalyticsExtendedMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
-        case "3" -> {
+        case "3" -> { // отчет со всеми операциями дохода
           reportFormat = requestReportFormat();
           if (reportFormat.isEmpty()) {
             skipLine();
@@ -101,7 +103,7 @@ public class AnalyticsExtendedMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
-        case "4" -> {
+        case "4" -> { // отчет со всеми операциями расхода
           reportFormat = requestReportFormat();
           if (reportFormat.isEmpty()) {
             skipLine();
@@ -127,6 +129,11 @@ public class AnalyticsExtendedMenu extends Menu {
     }
   }
 
+  /**
+   * Запрос требуемых параметров для фильтрации данных по категориям и валидация ввода от
+   * пользователя перед фильтрацией данных по категориям. А затем обращение к AnalyticsService для
+   * фильтрации. Возвращает полученный от AnalyticsService результат.
+   */
   private String handleRequestByCategories(Wallet wallet) throws CancellationRequestedException {
     String[] requestedCategories;
     boolean isIncome = requestIncomeOrExpenses();
@@ -138,7 +145,7 @@ public class AnalyticsExtendedMenu extends Menu {
                 (isIncome ? "дохода" : "расхода")));
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
-        if (getCurrentUserInput()
+        if (getCurrentUserInput() // проверка отсутствия проблем с названиями категорий
             .toLowerCase()
             .matches("^(\\s*\"(([^\\s\"']+)|((\\s*)([^\\s\"']+)(\\s*))+)\"\\s*)+$")) {
           requestedCategories = getCurrentUserInput().toLowerCase().split("\"\\s+\"");
@@ -161,18 +168,26 @@ public class AnalyticsExtendedMenu extends Menu {
         printlnRed(e.getMessage());
       }
     } while (true);
+    // Обращение к сервису, фильтрация по категориям
     return AnalyticsService.makeSummaryByCategories(
         wallet, isIncome, new ArrayList<>(Arrays.asList(requestedCategories)));
   }
 
+  /**
+   * Запрос требуемых параметров для фильтрации данных по периоду и валидация ввода от пользователя
+   * перед фильтрацией данных по периоду. А затем обращение к AnalyticsService для фильтрации.
+   * Возвращает полученный от AnalyticsService результат.
+   */
   private String handleRequestByPeriod(Wallet wallet) throws CancellationRequestedException {
     LocalDateTime periodStart =
         requestDateFromUser("Введите дату и время начала периода фильтрации (включительно).\n");
     LocalDateTime periodEnd =
         requestDateFromUser("Введите дату и время конца периода фильтрации (включительно).\n");
+    // Обращение к сервису, фильтрация по периоду
     return AnalyticsService.makeSummaryByPeriod(wallet, periodStart, periodEnd.plusMinutes(1));
   }
 
+  /** Проверка, по доходам или по расходам требуется отчёт при фильтрации по категориям. */
   private boolean requestIncomeOrExpenses() throws CancellationRequestedException {
     return requestOptionFirstOrSecond(
         "Вывести результаты по доходам (1) или по расходам (2)? (введите 1 или 2): ");

@@ -17,8 +17,13 @@ import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Меню для управления бюджетами, а также категориями доходов и расходов. Позволяет по-разному
+ * редактировать бюджеты и категории и удалять их.
+ */
 public class BudgetingManagementMenu extends Menu {
 
+  /** Показ меню. */
   @Override
   public void showMenu() {
     super.showMenu();
@@ -40,6 +45,7 @@ public class BudgetingManagementMenu extends Menu {
     printYellow("Введите номер желаемого действия: ");
   }
 
+  /** Направление на нужную функцию. */
   @Override
   public void handleUserInput() {
     requestUserInput(); // складывается в переменную super.currentInput
@@ -62,6 +68,11 @@ public class BudgetingManagementMenu extends Menu {
     }
   }
 
+  /**
+   * Запрос требуемых параметров для добавления нового бюджета и валидация ввода от пользователя перед его добавлением.
+   * А затем обращение к BudgetingService для фактического добавления данного бюджета.
+   * Позволяет добавлять бюджеты даже по тем категориям, по которым ещё не было расходов.
+   */
   private void handleAddNewExpensesCategoryWithLimit(Wallet wallet)
       throws CancellationRequestedException {
     String category;
@@ -84,6 +95,7 @@ public class BudgetingManagementMenu extends Menu {
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         amount = Double.parseDouble(getCurrentUserInput());
+        // Обращение к BudgetingService
         BudgetingService.addNewExpensesCategoryLimit(wallet, category, amount);
         break;
       } catch (NumberFormatException e) {
@@ -96,6 +108,10 @@ public class BudgetingManagementMenu extends Menu {
         String.format("Бюджет в %.2f для категории \"%s\" успешно добавлен!", amount, category));
   }
 
+  /**
+   * Запрос требуемых параметров для изменения лимита по имеющемуся бюджету и валидация ввода от пользователя.
+   * А затем обращение к BudgetingService для фактического изменения лимита по имеющемуся бюджету.
+   */
   private void handleChangeExistingExpensesCategoryLimit(Wallet wallet)
       throws CancellationRequestedException {
     String category;
@@ -118,6 +134,7 @@ public class BudgetingManagementMenu extends Menu {
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         amount = Double.parseDouble(getCurrentUserInput());
+        // Обращение к BudgetingService
         BudgetingService.changeLimitForCategory(wallet, category, amount);
         break;
       } catch (NumberFormatException e) {
@@ -131,6 +148,10 @@ public class BudgetingManagementMenu extends Menu {
             "Новый бюджет в %.2f для категории \"%s\" успешно установлен!", amount, category));
   }
 
+  /**
+   * Запрос требуемых параметров для удаления бюджета по определённой категории расходов и валидация ввода от пользователя.
+   * А затем обращение к BudgetingService для фактического удаления бюджета по определённой категории расходов.
+   */
   private void handleRemoveExistingExpensesCategoryLimit(Wallet wallet)
       throws CancellationRequestedException {
     String category;
@@ -142,6 +163,7 @@ public class BudgetingManagementMenu extends Menu {
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         category = getCurrentUserInput().toLowerCase();
         amount = BudgetingService.getLimitByCategory(wallet, category);
+        // Обращение к BudgetingService
         BudgetingService.removeExpensesCategoryLimit(wallet, category);
         break;
       } catch (IllegalArgumentException e) {
@@ -152,6 +174,10 @@ public class BudgetingManagementMenu extends Menu {
         String.format("Бюджет в %.2f для категории \"%s\" успешно удалён!", amount, category));
   }
 
+  /**
+   * Запрос требуемых параметров для изменения названия имеющейся категории расходов и валидация ввода от пользователя.
+   * А затем обращение к BudgetingService для фактического изменения названия имеющейся категории расходов.
+   */
   private void handleChangeExistingExpensesCategoryName(Wallet wallet)
       throws CancellationRequestedException {
     String category;
@@ -187,6 +213,7 @@ public class BudgetingManagementMenu extends Menu {
               "Бюджет для категории с выбранным названием уже существует. \nВведите другое название для категории или сначала отредактируйте лимиты.");
           continue;
         }
+        // Обращение к BudgetingService
         BudgetingService.changeNameForCategory(wallet, category, newCategoryName, false);
         break;
       } catch (IllegalArgumentException e) {
@@ -199,6 +226,10 @@ public class BudgetingManagementMenu extends Menu {
             category, newCategoryName));
   }
 
+  /**
+   * Запрос требуемых параметров для объединения нескольких имеющихся категорий расходов и валидация ввода от пользователя.
+   * А затем обращение к BudgetingService для фактического объединения нескольких имеющихся категорий расходов.
+   */
   private void handleMergeExistingExpensesCategoriesAndTheirLimits(Wallet wallet)
       throws CancellationRequestedException {
     String[] oldCategories;
@@ -269,6 +300,7 @@ public class BudgetingManagementMenu extends Menu {
                 "Бюджет для категории с выбранным названием уже существует. \nВведите другое название для категории или сначала отредактируйте лимиты.");
           }
         }
+        // Обращение к BudgetingService
         BudgetingService.mergeExpensesCategories(wallet, newCategoryName, oldCategories);
         break;
       } catch (CheckedIllegalArgumentException | IllegalArgumentException e) {
@@ -281,6 +313,10 @@ public class BudgetingManagementMenu extends Menu {
             Arrays.toString(oldCategories).replaceAll("[\\[\\]]", ""), newCategoryName));
   }
 
+  /**
+   * Запрос требуемых параметров для изменения названия имеющейся категории доходов и валидация ввода от пользователя.
+   * А затем обращение к BudgetingService для фактического изменения названия имеющейся категории доходов.
+   */
   private void handleChangeExistingIncomeCategoryName(Wallet wallet)
       throws CancellationRequestedException {
     String category;
@@ -309,6 +345,7 @@ public class BudgetingManagementMenu extends Menu {
               "Категория расходов с выбранным названием уже существует. Введите другое название для категории.");
           continue;
         }
+        // Обращение к BudgetingService
         BudgetingService.changeNameForCategory(wallet, category, newCategoryName, true);
         break;
       } catch (IllegalArgumentException e) {
@@ -321,6 +358,10 @@ public class BudgetingManagementMenu extends Menu {
             category, newCategoryName));
   }
 
+  /**
+   * Запрос требуемых параметров для объединения нескольких имеющихся категорий доходов и валидация ввода от пользователя.
+   * А затем обращение к BudgetingService для фактического объединения нескольких имеющихся категорий доходов.
+   */
   private void handleMergeExistingIncomeCategories(Wallet wallet)
       throws CancellationRequestedException {
     String[] oldCategories;
@@ -383,6 +424,7 @@ public class BudgetingManagementMenu extends Menu {
                 "Категория доходов с выбранным названием уже существует. Введите другое название для категории.");
           }
         }
+        // Обращение к BudgetingService
         BudgetingService.mergeIncomeCategories(wallet, newCategoryName, oldCategories);
         break;
       } catch (CheckedIllegalArgumentException | IllegalArgumentException e) {

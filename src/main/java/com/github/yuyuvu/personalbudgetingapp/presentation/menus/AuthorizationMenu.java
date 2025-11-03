@@ -23,6 +23,7 @@ import java.io.IOException;
  */
 public class AuthorizationMenu extends Menu {
 
+  /** Показ меню. */
   @Override
   public void showMenu() {
     skipLine();
@@ -35,6 +36,7 @@ public class AuthorizationMenu extends Menu {
     printYellow("Введите номер желаемого действия: ");
   }
 
+  /** Направление на нужную функцию. */
   @Override
   public void handleUserInput() {
     requestUserInput(); // складывается в переменную super.currentInput
@@ -104,8 +106,8 @@ public class AuthorizationMenu extends Menu {
   }
 
   /**
-   * Обработка ввода для входа в имеющийся аккаунт. Валидация введённых значений. При успехе вызов метода
-   * аутентификации logInToAccount из AuthorizationService.
+   * Обработка ввода для входа в имеющийся аккаунт. Валидация введённых значений. При успехе вызов
+   * метода аутентификации logInToAccount из AuthorizationService.
    */
   private User handleLogInToAccount() throws CancellationRequestedException, IOException {
     String inputExistingUsername;

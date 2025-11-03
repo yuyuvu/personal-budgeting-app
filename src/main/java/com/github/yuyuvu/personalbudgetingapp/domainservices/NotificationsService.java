@@ -9,8 +9,14 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.util.ArrayList;
 
+/**
+ * Класс содержит методы для проверки выполнения определённых условий на основе данных кошелька и
+ * формирования уведомлений для пользователя. Меню обращаются к методу checkAndPrepareNotifications
+ * данного класса и в случае наличия уведомлений выводят их в консоль.
+ */
 public class NotificationsService {
 
+  /** Метод для форматирования секции с уведомлениями. */
   public static String notificationsSectionWrap(String notificationsContents) {
     StringBuilder result = new StringBuilder();
     result.append(paintYellow("------ Уведомления. Обратите внимание: ")).append("\n");
@@ -18,6 +24,10 @@ public class NotificationsService {
     return result.toString();
   }
 
+  /**
+   * Метод для проверки наличия всех типов уведомлений и подготовки результата перед выводом в
+   * консоль.
+   */
   public static String checkAndPrepareNotifications(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     result.append(checkBalanceConsumption(wallet));
@@ -31,6 +41,10 @@ public class NotificationsService {
     return resultWrapped;
   }
 
+  /**
+   * Метод для проверки отношения доходов к расходам. Предупреждает о нулевом или отрицательном
+   * балансе, приближении к нему и о заметных дисбалансах между доходами и расходами.
+   */
   public static String checkBalanceConsumption(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     boolean noOperations =
@@ -86,6 +100,11 @@ public class NotificationsService {
     return result.toString();
   }
 
+  /**
+   * Метод для проверки влияния отдельных категорий на итоговую сумму доходов или расходов.
+   * Предупреждает о наличии категорий доходов и расходов, формирующих значимую часть итоговой
+   * суммы.
+   */
   private static String checkCategoriesImportance(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     double totalIncome = wallet.getTotalIncome();
@@ -122,6 +141,11 @@ public class NotificationsService {
     return result.toString();
   }
 
+  /**
+   * Метод для проверки израсходования бюджетов по категориям расходов: перерасходе, выходе в ноль,
+   * приближении к полному израсходованию бюджета или о наличии запретов на расходы по определённым
+   * категориям.
+   */
   public static String checkBudgetLimitsConsumption(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     ArrayList<String> restrictedCategories = new ArrayList<>();

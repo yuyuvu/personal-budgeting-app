@@ -16,10 +16,20 @@ import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 
+/**
+ * Класс, от которого наследуются остальные классы Menu. Содержит 2 основных метода showMenu и
+ * handleUserInput, которые вызываются в основном цикле приложения и которые должны переопределяться
+ * наследниками. Также содержит методы для единообразного запроса и считывания ввода пользователя из
+ * остальных меню, для выхода из аккаунта, выключения приложения, обработки служебных команд. Также
+ * для сокращения дублирования кода содержит методы для единообразного запроса даты, формата отчёта,
+ * опционального поведения, формирования имени файла отчёта, которые используются в
+ * меню-наследниках.
+ */
 public abstract class Menu {
 
   private String currentInput;
 
+  /** Метод, который должен отображать меню. Также отвечает за вывод уведомлений перед меню. */
   public void showMenu() {
     print(
         NotificationsService.checkAndPrepareNotifications(
@@ -27,8 +37,13 @@ public abstract class Menu {
     skipLine();
   }
 
+  /**
+   * Метод, который должен запрашивать и обрабатывать ввод от пользователя, направляя его на нужный
+   * функционал.
+   */
   public abstract void handleUserInput();
 
+  /** Метод, выключающий приложение. */
   protected static void turnOffApplication(boolean printMessages) {
     if (printMessages) {
       printlnGreen("Выключаем приложение...");
@@ -36,6 +51,10 @@ public abstract class Menu {
     System.exit(0);
   }
 
+  /**
+   * Метод, осуществляющий выход из текущего аккаунта пользователя и возврат в меню авторизации.
+   * Также сохраняет данные кошелька пользователя в файл при помощи методов DataPersistenceService.
+   */
   protected static void logOutOfCurrentUser(boolean printMessages) {
     if (PersonalBudgetingApp.getCurrentAppUser() != null) {
       if (printMessages) {
@@ -61,14 +80,20 @@ public abstract class Menu {
     }
   }
 
+  /** Метод для запроса ввода от пользователя. */
   protected void requestUserInput() {
     currentInput = PersonalBudgetingApp.getUserInput().nextLine().strip();
   }
 
+  /** Метод для получения ввода от пользователя. */
   protected String getCurrentUserInput() {
     return currentInput;
   }
 
+  /**
+   * Метод для обработки служебных команд на любом этапе работы приложения. Выводит справку,
+   * позволяет отменить текущее действие и вернуться в меню и т.д.
+   */
   public static void checkUserInputForAppGeneralCommands(String userInput)
       throws CancellationRequestedException {
     switch (userInput.toLowerCase()) {
@@ -97,6 +122,9 @@ public abstract class Menu {
     }
   }
 
+  /**
+   * Метод для запроса формата, в котором должен создаваться отчёт по данным кошелька пользователя.
+   */
   protected String requestReportFormat() throws CancellationRequestedException {
     do {
       printCyan("Вывести результат в консоль (1) или сохранить в файл (2)? (введите 1 или 2): ");
@@ -114,6 +142,10 @@ public abstract class Menu {
     } while (true);
   }
 
+  /**
+   * Метод для создания названия файла отчёта или снимка состояния кошелька пользователя. Включает в
+   * название файла имя пользователя и текущие дату и время.
+   */
   protected String makeFilenameForReportFile(String reportVariant) {
     StringBuilder fileName = new StringBuilder();
     fileName.append(reportVariant);
@@ -134,6 +166,10 @@ public abstract class Menu {
     return fileName.toString();
   }
 
+  /**
+   * Метод для запроса даты при добавлении операций дохода или расхода или при фильтрации данных
+   * кошелька по периоду.
+   */
   protected LocalDateTime requestDateFromUser(String optionalMessage)
       throws CancellationRequestedException {
     LocalDateTime dateTime;
@@ -167,6 +203,10 @@ public abstract class Menu {
     return dateTime;
   }
 
+  /**
+   * Метод для запроса одного варианта из двух предлагаемых (импорт или экспорт, доходы или расходы)
+   * в некоторых функциях.
+   */
   protected boolean requestOptionFirstOrSecond(String requestMessage)
       throws CancellationRequestedException {
     while (true) {

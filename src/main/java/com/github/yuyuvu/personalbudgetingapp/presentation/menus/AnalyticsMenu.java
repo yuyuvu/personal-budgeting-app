@@ -25,6 +25,7 @@ import java.io.IOException;
  */
 public class AnalyticsMenu extends Menu {
 
+  /** Показ меню. */
   @Override
   public void showMenu() {
     super.showMenu();
@@ -40,6 +41,7 @@ public class AnalyticsMenu extends Menu {
     printYellow("Введите номер желаемого действия: ");
   }
 
+  /** Направление на нужную функцию. */
   @Override
   public void handleUserInput() {
     String displayedUserNameForReports =
@@ -51,10 +53,11 @@ public class AnalyticsMenu extends Menu {
       Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
       Wallet wallet = PersonalBudgetingApp.getCurrentAppUser().getWallet();
       switch (getCurrentUserInput()) {
-        case "1" -> {
+        case "1" -> { // отчёт-сводка по всем данным кошелька
           reportFormat = requestReportFormat(); // проверка желания вывода в консоль или в файл
           if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
+            // Обращение к сервису
             print(AnalyticsService.makeTotalSummary(wallet));
           } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
@@ -66,10 +69,11 @@ public class AnalyticsMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
-        case "2" -> {
+        case "2" -> { // отчёт-сводка по доходам
           reportFormat = requestReportFormat();
           if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
+            // Обращение к сервису
             print(AnalyticsService.makeIncomeSummary(wallet));
           } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
@@ -81,10 +85,11 @@ public class AnalyticsMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
-        case "3" -> {
+        case "3" -> { // отчёт-сводка по расходам
           reportFormat = requestReportFormat();
           if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
+            // Обращение к сервису
             print(AnalyticsService.makeExpensesSummary(wallet));
           } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
@@ -96,10 +101,11 @@ public class AnalyticsMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
-        case "4" -> {
+        case "4" -> { // отчёт-сводка по бюджетам и расходованию лимитов
           reportFormat = requestReportFormat();
           if (reportFormat.isEmpty()) { // вывод в консоль
             skipLine();
+            // Обращение к сервису
             print(AnalyticsService.makeBudgetCategoriesAndLimitsSummary(wallet));
           } else if (reportFormat.equals(".txt")) { // вывод в файл
             pathToReportFile =
@@ -112,6 +118,7 @@ public class AnalyticsMenu extends Menu {
             printlnGreen(String.format("Отчёт успешно сохранён в \"%s\"!", pathToReportFile));
           }
         }
+        // Переход в AnalyticsExtendedMenu
         case "5" -> PersonalBudgetingApp.setCurrentMenu(new AnalyticsExtendedMenu());
         case "6" -> PersonalBudgetingApp.setCurrentMenu(new AppMainMenu());
         default -> printlnYellow("Некорректный ввод, введите цифру от 1 до 6.");

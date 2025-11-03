@@ -14,6 +14,7 @@ import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedEx
  */
 public class AppMainMenu extends Menu {
 
+  /** Показ меню. */
   @Override
   public void showMenu() {
     super.showMenu();
@@ -28,6 +29,7 @@ public class AppMainMenu extends Menu {
     printYellow("Введите номер желаемого действия: ");
   }
 
+  /** Направление на нужную функцию. */
   @Override
   public void handleUserInput() {
     requestUserInput(); // складывается в переменную super.currentInput
