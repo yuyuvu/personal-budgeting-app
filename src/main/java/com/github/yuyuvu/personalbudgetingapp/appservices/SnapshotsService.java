@@ -13,9 +13,19 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Класс SnapshotsService хранит методы для сериализации всего кошелька или отдельных его частей
+ * (списков доходов, расходов или хэш-таблицы лимитов по категориям) в снимки состояния в формате
+ * json, а также для десериализации обратно: в Wallet, ArrayList или HashMap. Валидирует форматы
+ * импортируемых отчётов.
+ */
 public class SnapshotsService {
   private static final ObjectMapper jsonObjectMapper = new ObjectMapper();
 
+  /**
+   * Метод сериализует данные всего кошелька в строку в формате json, создавая содержимое для
+   * частичного снимка состояния.
+   */
   public static String makeTotalExportContents(Wallet wallet) throws SnapshotException {
     String result;
     try (StringWriter resultWriter = new StringWriter()) {
@@ -28,6 +38,10 @@ public class SnapshotsService {
     return result;
   }
 
+  /**
+   * Метод сериализует только операции дохода из кошелька в строку в формате json, создавая
+   * содержимое для частичного снимка состояния.
+   */
   public static String makeOnlyIncomeExportContents(Wallet wallet) throws SnapshotException {
     String result;
     try (StringWriter resultWriter = new StringWriter()) {
@@ -40,6 +54,10 @@ public class SnapshotsService {
     return result;
   }
 
+  /**
+   * Метод сериализует только операции расхода из кошелька в строку в формате json, создавая
+   * содержимое для частичного снимка состояния.
+   */
   public static String makeOnlyExpensesExportContents(Wallet wallet) throws SnapshotException {
     String result;
     try (StringWriter resultWriter = new StringWriter()) {
@@ -52,6 +70,10 @@ public class SnapshotsService {
     return result;
   }
 
+  /**
+   * Метод сериализует только бюджеты по категориям расхода из кошелька в строку в формате json,
+   * создавая содержимое для снимка состояния.
+   */
   public static String makeOnlyBudgetsExportContents(Wallet wallet) throws SnapshotException {
     String result;
     try (StringWriter resultWriter = new StringWriter()) {
@@ -64,6 +86,10 @@ public class SnapshotsService {
     return result;
   }
 
+  /**
+   * Метод десериализует данные всего кошелька из строки в формате json, читая содержимое для
+   * импорта снимка состояния. Далее текущий кошелёк пользователя заменяется прочитанным.
+   */
   public static void importTotalSnapshot(User user, String snapshotContents)
       throws SnapshotException {
     Wallet readWalletData;
@@ -80,6 +106,11 @@ public class SnapshotsService {
     user.setWallet(readWalletData);
   }
 
+  /**
+   * Метод десериализует только операции дохода из строки в формате json, читая содержимое для
+   * импорта частичного снимка состояния. Далее старые операции дохода в текущем кошельке заменяются
+   * прочитанными.
+   */
   public static void importOnlyIncomeSnapshot(User user, String snapshotContents)
       throws SnapshotException {
     ArrayList<Wallet.WalletOperation> readWalletIncomeOperations;
@@ -105,6 +136,11 @@ public class SnapshotsService {
     user.getWallet().getWalletOperations().addAll(tempSaveExpenses);
   }
 
+  /**
+   * Метод десериализует только операции расхода из строки в формате json, читая содержимое для
+   * импорта частичного снимка состояния. Далее старые операции расхода в текущем кошельке
+   * заменяются прочитанными.
+   */
   public static void importOnlyExpensesSnapshot(User user, String snapshotContents)
       throws SnapshotException {
     ArrayList<Wallet.WalletOperation> readWalletExpensesOperations;
@@ -129,6 +165,11 @@ public class SnapshotsService {
     user.getWallet().getWalletOperations().addAll(readWalletExpensesOperations);
   }
 
+  /**
+   * Метод десериализует только бюджеты по расходам из строки в формате json, читая содержимое для
+   * импорта частичного снимка состояния. Далее имеющиеся бюджеты по расходам в текущем кошельке
+   * заменяются прочитанными.
+   */
   public static void importOnlyBudgetsSnapshot(User user, String snapshotContents)
       throws SnapshotException {
     HashMap<String, Double> readWalletBudgets;
