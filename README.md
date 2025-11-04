@@ -116,7 +116,8 @@
 git clone https://github.com/yuyuvu/personal-budgeting-app.git
 cd .\personal-budgeting-app
 .\gradlew.bat build
-.\gradlew.bat run
+cd .\build\libs
+java -jar .\personal_budgeting_app-1.0.jar
 ```
 Альтернативно можно скачать готовый jar файл из [релизов](https://github.com/yuyuvu/personal-budgeting-app/releases) и запустить его через:
 ```bash
