@@ -2,11 +2,19 @@ package com.github.yuyuvu.personalbudgetingapp.unit.testappservices;
 
 import com.github.yuyuvu.personalbudgetingapp.appservices.PasswordHasher;
 import java.util.Base64;
+import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Класс для тестов методов PasswordHasher. */
 public class PasswordHasherTest {
+
+  /** Подготавливаем нужную локаль перед каждым тестом. */
+  @BeforeEach
+  void prepareLocale() {
+    Locale.setDefault(Locale.US);
+  }
 
   /** Проверяем метод генерации хэша. */
   @Test

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +21,11 @@ import org.junit.jupiter.api.Test;
 public class TransferMoneyTest {
   Wallet wallet;
 
-  /** Подготавливаем пустой кошелёк перед каждым тестом. */
+  /** Подготавливаем пустой кошелёк и нужную локаль перед каждым тестом. */
   @BeforeEach
   void prepareNewWallet() {
     wallet = new Wallet(false);
+    Locale.setDefault(Locale.US);
   }
 
   /**

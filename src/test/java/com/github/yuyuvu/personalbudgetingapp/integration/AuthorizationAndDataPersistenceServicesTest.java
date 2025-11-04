@@ -10,11 +10,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Класс для тестов методов из AuthorizationService и DataPersistenceService. */
 public class AuthorizationAndDataPersistenceServicesTest {
+
+  /** Подготавливаем нужную локаль перед каждым тестом. */
+  @BeforeEach
+  void prepareLocale() {
+    Locale.setDefault(Locale.US);
+  }
 
   /**
    * Проверяем методы, регистрирующие и авторизующие пользователя. А также методы, записывающие в

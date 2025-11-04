@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +22,11 @@ import org.junit.jupiter.api.Test;
 public class SnapshotsAndDataPersistenceTest {
   Wallet wallet;
 
-  /** Подготавливаем пустой кошелёк перед каждым тестом. */
+  /** Подготавливаем пустой кошелёк и нужную локаль перед каждым тестом. */
   @BeforeEach
   void prepareNewWallet() {
     wallet = new Wallet(false);
+    Locale.setDefault(Locale.US);
   }
 
   /** Проверяем экспорт и импорт снапшотов на основе данных кошелька. */

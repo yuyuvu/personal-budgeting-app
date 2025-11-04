@@ -7,6 +7,7 @@ import com.github.yuyuvu.personalbudgetingapp.domainservices.BudgetingService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.WalletOperationsService;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,11 @@ import org.junit.jupiter.api.Test;
 public class AnalyticsServiceTest {
   Wallet wallet;
 
-  /** Подготавливаем пустой кошелёк перед каждым тестом. */
+  /** Подготавливаем пустой кошелёк и нужную локаль перед каждым тестом. */
   @BeforeEach
   void prepareNewWallet() {
     wallet = new Wallet(false);
+    Locale.setDefault(Locale.US);
   }
 
   /** Проверяем метод собирающий основной отчёт-сводку по всем данным кошелька. */
