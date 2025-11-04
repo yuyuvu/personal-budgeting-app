@@ -1,8 +1,17 @@
 package com.github.yuyuvu.personalbudgetingapp;
 
+import java.util.Locale;
+
+/** Класс Main отвечает только за запуск приложения. Делает точку входа видимой сразу. */
 public class Main {
 
-    public static void main(String[] args) {
-        new PersonalBudgetingApp().start();
-    }
+  // Установка глобальной локали для сохранения вывода приложения ожидаемым
+  static {
+    Locale.setDefault(Locale.US);
+  }
+
+  /** Метод main отвечает только за запуск приложения. Делает точку входа видимой сразу. */
+  public static void main(String[] args) {
+    new PersonalBudgetingApp().start();
+  }
 }
