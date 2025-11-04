@@ -1,5 +1,3 @@
-import com.diffplug.gradle.spotless.SpotlessTask
-
 plugins {
     id("java")
     id("com.diffplug.spotless") version "8.0.0"
@@ -9,7 +7,7 @@ plugins {
 group = "com.github.yuyuvu"
 version = "1.0"
 
-//  указываем, что версия файлов скомпилированных классов должна быть совместима со всеми JRE, начиная с JRE 17
+//  указываем, что версия файлов скомпилированных классов должна быть совместима со всеми JDK, начиная с JDK 17
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -19,7 +17,7 @@ repositories {
     mavenCentral()
 }
 
-// добавляем Jackson для парсинга JSON
+// добавляем JUnit для тестов и Jackson для сериализации и десериализации JSON
 dependencies {
     // https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
     implementation("tools.jackson.core:jackson-databind:3.0.0")
@@ -37,7 +35,6 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-// указываем, что везде нужна кодировка UTF-8; без этого кириллица отображается в консоли неправильно JavaExec
 tasks.withType<JavaExec> {
     systemProperty("file.encoding", "UTF-8")
     systemProperty("sun.jnu.encoding", "UTF-8")
@@ -48,7 +45,7 @@ tasks.withType<JavaExec> {
     )
 }
 
-// указываем основной класс с main для MANIFEST.MF, а также то, что нам нужен far-jar со всеми зависимостями
+// указываем основной класс с main для MANIFEST.MF, а также то, что нам нужен fat-jar со всеми зависимостями
 tasks.jar {
     archiveBaseName.set("personal_budgeting_app")
     manifest {
@@ -60,7 +57,8 @@ tasks.jar {
 }
 
 // Настройки checkstyle и spotless
-// Checkstyle осуществляет дополнительные проверки (например импортов и документации), поэтому добавлен
+// Checkstyle осуществляет дополнительные проверки (например импортов и документации),
+// поэтому добавлен вместе со spotless
 
 spotless {
     java {
@@ -71,13 +69,12 @@ spotless {
 checkstyle {
     toolVersion = "12.1.1"
     configFile = rootProject.file("config/checkstyle/google_checks.xml")
-    // запрещаем сборку с предупреждениями
+    // запрещаем сборку с предупреждениями и ошибками
     maxErrors = 0
     maxWarnings = 0
 }
 
-// Указываем явный порядок сборки. Получаем итоговый jar после всех проверок.
-
+// Указываем явный порядок сборки. Получаем итоговый jar после всех проверок и тестов.
 tasks.check {
     dependsOn(tasks.spotlessApply)
     dependsOn(tasks.checkstyleMain)
@@ -96,20 +93,7 @@ tasks.jar {
     dependsOn(tasks.check )
 }
 
-// Явно указываем Gradle выполнять тесты, проверки стиля и исправлять его, а также собирать jar при каждой сборке
-
+// Явно указываем Gradle, что jar необходимо пересоздавать при каждой сборке
 tasks.withType<Jar> {
-    outputs.upToDateWhen { false }
-}
-
-tasks.withType<Test> {
-    outputs.upToDateWhen { false }
-}
-
-tasks.withType<SpotlessTask> {
-    outputs.upToDateWhen { false }
-}
-
-tasks.withType<Checkstyle> {
     outputs.upToDateWhen { false }
 }
