@@ -121,7 +121,7 @@ java -jar .\personal_budgeting_app-1.0.jar
 ```
 Альтернативно можно скачать готовый jar файл из [релизов](https://github.com/yuyuvu/personal-budgeting-app/releases) и запустить его через:
 ```bash
-java -jar personal_budgeting_app-1.0.jar
+java -jar .\personal_budgeting_app-1.0.jar
 ```
 
 ## Тестирование
