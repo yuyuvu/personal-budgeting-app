@@ -95,7 +95,11 @@ public class SnapshotsService {
     Wallet readWalletData;
     try {
       readWalletData = jsonObjectMapper.readValue(snapshotContents, Wallet.class);
-    } catch (JacksonException e) {
+      // Проверка формата отчёта
+      if (jsonObjectMapper.readTree(snapshotContents).get("balance").toString() == null) {
+        throw new NullPointerException();
+      }
+    } catch (JacksonException | NullPointerException e) {
       throw new SnapshotException(
           paintRed(
               """

@@ -45,7 +45,8 @@ public class PasswordHasher {
    * Метод для получения уникальной соли при регистрации пользователя для более безопасного
    * вычисления хэша на основе неё и пароля.
    */
-  static class SaltGenerator {
+  public static class SaltGenerator {
+    /** Метод для генерации соли. */
     public static String makeSalt() {
       SecureRandom random = new SecureRandom();
       byte[] salt = new byte[16];

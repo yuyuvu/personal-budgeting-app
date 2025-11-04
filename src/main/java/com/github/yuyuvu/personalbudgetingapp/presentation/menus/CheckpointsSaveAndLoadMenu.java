@@ -104,6 +104,10 @@ public class CheckpointsSaveAndLoadMenu extends Menu {
       requestUserInput();
       Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
       try {
+        if (getCurrentUserInput().isBlank()) {
+          throw new CheckedIllegalArgumentException(
+              "Вы не указали путь до снимка состояния. Повторите ввод.");
+        }
         pathToFile = Path.of(getCurrentUserInput().replace("\"", "")).toAbsolutePath().toString();
         if (!Files.exists(Path.of(pathToFile))) {
           throw new CheckedIllegalArgumentException(

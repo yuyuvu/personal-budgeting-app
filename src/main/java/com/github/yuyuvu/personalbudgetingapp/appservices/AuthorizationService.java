@@ -1,6 +1,5 @@
 package com.github.yuyuvu.personalbudgetingapp.appservices;
 
-import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnGreen;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnRed;
 
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
@@ -100,7 +99,6 @@ public class AuthorizationService {
     DataPersistenceService.makeNewUserWalletFile(inputNewUsername);
     DataPersistenceService.saveUserdataToFile(newUser);
 
-    printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
     return newUser;
   }
 
@@ -145,9 +143,7 @@ public class AuthorizationService {
    * сохранённые при предыдущем выходе из аккаунта данные кошелька пользователя.
    */
   public static User logInToAccount(String inputExistingUsername) throws IOException {
-    User loadedUser = DataPersistenceService.loadUserdataFromFile(inputExistingUsername);
-    printlnGreen("Успешный вход в аккаунт пользователя " + inputExistingUsername + "!");
-    return loadedUser;
+    return DataPersistenceService.loadUserdataFromFile(inputExistingUsername);
   }
 
   /**

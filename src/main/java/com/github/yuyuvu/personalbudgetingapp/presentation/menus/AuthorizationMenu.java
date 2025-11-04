@@ -3,6 +3,7 @@ package com.github.yuyuvu.personalbudgetingapp.presentation.menus;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printCyan;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printYellow;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.println;
+import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnGreen;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnPurple;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnRed;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnYellow;
@@ -102,7 +103,9 @@ public class AuthorizationMenu extends Menu {
       }
     }
     // Данный вызов может выбрасывать IOException
-    return AuthorizationService.registerUser(inputNewUsername, inputNewPassword);
+    User registeredUser = AuthorizationService.registerUser(inputNewUsername, inputNewPassword);
+    printlnGreen("Успешная регистрация пользователя " + inputNewUsername + "!");
+    return registeredUser;
   }
 
   /**
@@ -142,6 +145,8 @@ public class AuthorizationMenu extends Menu {
       }
     }
     // Данный вызов может выбрасывать IOException
-    return AuthorizationService.logInToAccount(inputExistingUsername);
+    User loggedInUser = AuthorizationService.logInToAccount(inputExistingUsername);
+    printlnGreen("Успешный вход в аккаунт пользователя " + inputExistingUsername + "!");
+    return loggedInUser;
   }
 }

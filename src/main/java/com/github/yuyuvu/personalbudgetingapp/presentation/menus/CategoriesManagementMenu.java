@@ -83,6 +83,10 @@ public class CategoriesManagementMenu extends Menu {
       requestUserInput();
       Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
       category = getCurrentUserInput().toLowerCase();
+      if (category.isBlank()) {
+        printlnRed("Нельзя добавлять лимит для пустой категории.");
+        continue;
+      }
       if (BudgetingService.checkExpensesCategoryLimitExistence(wallet, category)) {
         printlnRed(
             "Бюджет для данной категории уже существует. Используйте опцию изменения лимита или введите другое название категории.");
@@ -207,6 +211,10 @@ public class CategoriesManagementMenu extends Menu {
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         newCategoryName = getCurrentUserInput().toLowerCase();
+        if (newCategoryName.isBlank()) {
+          printlnRed("Нельзя устанавливать пустое название категории.");
+          continue;
+        }
         if (wallet.getWalletOperationsExpensesCategories().contains(newCategoryName)) {
           printlnRed(
               "Категория расходов с выбранным названием уже существует. Введите другое название для категории.");
@@ -293,6 +301,10 @@ public class CategoriesManagementMenu extends Menu {
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         newCategoryName = getCurrentUserInput().toLowerCase();
+        if (newCategoryName.isBlank()) {
+          throw new CheckedIllegalArgumentException(
+              "Нельзя устанавливать пустое название категории.");
+        }
         if (wallet.getWalletOperationsExpensesCategories().contains(newCategoryName)) {
           if (!Arrays.asList(oldCategories).contains(newCategoryName)) {
             throw new CheckedIllegalArgumentException(
@@ -346,6 +358,10 @@ public class CategoriesManagementMenu extends Menu {
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         newCategoryName = getCurrentUserInput().toLowerCase();
+        if (newCategoryName.isBlank()) {
+          printlnRed("Нельзя устанавливать пустое название категории.");
+          continue;
+        }
         if (wallet.getWalletOperationsIncomeCategories().contains(newCategoryName)) {
           printlnRed(
               "Категория расходов с выбранным названием уже существует. Введите другое название для категории.");
@@ -425,6 +441,10 @@ public class CategoriesManagementMenu extends Menu {
         requestUserInput();
         Menu.checkUserInputForAppGeneralCommands(getCurrentUserInput());
         newCategoryName = getCurrentUserInput().toLowerCase();
+        if (newCategoryName.isBlank()) {
+          throw new CheckedIllegalArgumentException(
+              "Нельзя устанавливать пустое название категории.");
+        }
         if (wallet.getWalletOperationsIncomeCategories().contains(newCategoryName)) {
           if (!Arrays.asList(oldCategories).contains(newCategoryName)) {
             throw new CheckedIllegalArgumentException(

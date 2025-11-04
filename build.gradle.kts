@@ -71,6 +71,9 @@ spotless {
 checkstyle {
     toolVersion = "12.1.1"
     configFile = rootProject.file("config/checkstyle/google_checks.xml")
+    // запрещаем сборку с предупреждениями
+    maxErrors = 0
+    maxWarnings = 0
 }
 
 // Указываем явный порядок сборки. Получаем итоговый jar после всех проверок.
@@ -83,8 +86,6 @@ tasks.check {
 
 tasks.test {
     dependsOn(tasks.spotlessApply)
-    dependsOn(tasks.checkstyleMain)
-    dependsOn(tasks.checkstyleTest)
 }
 
 tasks.assemble {

@@ -105,7 +105,7 @@ public class NotificationsService {
    * Предупреждает о наличии категорий доходов и расходов, формирующих значимую часть итоговой
    * суммы.
    */
-  private static String checkCategoriesImportance(Wallet wallet) {
+  public static String checkCategoriesImportance(Wallet wallet) {
     StringBuilder result = new StringBuilder();
     double totalIncome = wallet.getTotalIncome();
     double totalExpenses = wallet.getTotalExpenses();
