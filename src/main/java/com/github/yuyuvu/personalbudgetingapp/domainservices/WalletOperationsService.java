@@ -27,7 +27,11 @@ public class WalletOperationsService {
    * Каждой операции также присваивается дата, время и ID.
    */
   public static void addIncome(
-      Wallet wallet, double amount, String category, LocalDateTime dateTime) {
+      Wallet wallet, double amount, String category, LocalDateTime dateTime)
+      throws IllegalArgumentException {
+    if (amount <= 0) {
+      throw new IllegalArgumentException("Сумма операции должна быть больше нуля.");
+    }
     wallet
         .getWalletOperations()
         .add(new Wallet.WalletOperation(wallet, amount, true, category, dateTime));
@@ -38,7 +42,11 @@ public class WalletOperationsService {
    * Каждой операции также присваивается дата, время и ID.
    */
   public static void addExpense(
-      Wallet wallet, double amount, String category, LocalDateTime dateTime) {
+      Wallet wallet, double amount, String category, LocalDateTime dateTime)
+      throws IllegalArgumentException {
+    if (amount <= 0) {
+      throw new IllegalArgumentException("Сумма операции должна быть больше нуля.");
+    }
     wallet
         .getWalletOperations()
         .add(new Wallet.WalletOperation(wallet, amount, false, category, dateTime));
@@ -110,7 +118,7 @@ public class WalletOperationsService {
     wallet.getBudgetCategoriesAndLimits().put(newCategoryName, newLimit);
 
     // Смена названий старых категорий на одно новое в массиве операций пользователя
-    for (Wallet.WalletOperation wo : wallet.getWalletOperations()) {
+    for (Wallet.WalletOperation wo : wallet.getExpensesWalletOperations()) {
       for (String category : oldCategories) {
         if (wo.getCategory().equals(category)) {
           wo.setCategory(newCategoryName);

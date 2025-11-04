@@ -1,10 +1,13 @@
+import com.diffplug.gradle.spotless.SpotlessTask
+
 plugins {
     id("java")
     id("com.diffplug.spotless") version "8.0.0"
+    checkstyle
 }
 
 group = "com.github.yuyuvu"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 //  указываем, что версия файлов скомпилированных классов должна быть совместима со всеми JRE, начиная с JRE 17
 java {
@@ -34,7 +37,7 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-// указываем, что везде нужна кодировка UTF-8; без этого кириллица отображается в консоли неправильно
+// указываем, что везде нужна кодировка UTF-8; без этого кириллица отображается в консоли неправильно JavaExec
 tasks.withType<JavaExec> {
     systemProperty("file.encoding", "UTF-8")
     systemProperty("sun.jnu.encoding", "UTF-8")
@@ -47,6 +50,7 @@ tasks.withType<JavaExec> {
 
 // указываем основной класс с main для MANIFEST.MF, а также то, что нам нужен far-jar со всеми зависимостями
 tasks.jar {
+    archiveBaseName.set("personal_budgeting_app")
     manifest {
         attributes["Main-Class"] = "com.github.yuyuvu.personalbudgetingapp.Main"
     }
@@ -55,12 +59,56 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+// Настройки checkstyle и spotless
+// Checkstyle осуществляет дополнительные проверки (например импортов и документации), поэтому добавлен
 
 spotless {
     java {
-        // apply a specific flavor of google-java-format
-        //removeUnusedImports()
-        //formatAnnotations()
         googleJavaFormat("1.31.0")
     }
+}
+
+checkstyle {
+    toolVersion = "12.1.1"
+    configFile = rootProject.file("config/checkstyle/google_checks.xml")
+}
+
+// Указываем явный порядок сборки. Получаем итоговый jar после всех проверок.
+
+tasks.check {
+    dependsOn(tasks.spotlessApply)
+    dependsOn(tasks.checkstyleMain)
+    dependsOn(tasks.checkstyleTest)
+}
+
+tasks.test {
+    dependsOn(tasks.spotlessApply)
+    dependsOn(tasks.checkstyleMain)
+    dependsOn(tasks.checkstyleTest)
+}
+
+tasks.assemble {
+    dependsOn(tasks.check )
+}
+
+tasks.jar {
+    dependsOn(tasks.check )
+}
+
+// Явно указываем Gradle выполнять тесты, проверки стиля и исправлять его, а также собирать jar при каждой сборке
+
+tasks.withType<Jar> {
+    outputs.upToDateWhen { false }
+}
+
+tasks.withType<Test> {
+    outputs.upToDateWhen { false }
+}
+
+tasks.withType<SpotlessTask> {
+    outputs.upToDateWhen { false }
+}
+
+tasks.withType<Checkstyle> {
+    outputs.upToDateWhen { false }
 }

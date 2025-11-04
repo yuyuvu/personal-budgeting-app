@@ -128,11 +128,7 @@ public class AnalyticsService {
           .append(
               paintPurple("\tНе найдены добавленные категории бюджета с установленными лимитами."))
           .append("\n");
-      result
-          .append(
-              paintPurple(
-                  "\tДобавьте их в меню управления категориями или при добавлении нового расхода."))
-          .append("\n");
+      result.append(paintPurple("\tДобавьте их в меню управления категориями.")).append("\n");
       return result.toString();
     }
     for (Map.Entry<String, Double> category : wallet.getBudgetCategoriesAndLimits().entrySet()) {
@@ -361,12 +357,7 @@ public class AnalyticsService {
         result
             .append(paintPurple("\tНе найдены добавленные бюджеты по запрошенным категориям."))
             .append("\n");
-        result
-            .append(
-                paintPurple(
-                    "\tДобавьте их в меню управления категориями "
-                        + "или при добавлении нового расхода."))
-            .append("\n");
+        result.append(paintPurple("\tДобавьте их в меню управления категориями.")).append("\n");
         return result.toString();
       }
 

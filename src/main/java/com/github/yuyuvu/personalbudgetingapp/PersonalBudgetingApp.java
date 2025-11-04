@@ -6,6 +6,8 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.presentation.menus.AuthorizationMenu;
 import com.github.yuyuvu.personalbudgetingapp.presentation.menus.Menu;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Scanner;
 
 /**
@@ -15,8 +17,13 @@ import java.util.Scanner;
  * используются другими классами.
  */
 public class PersonalBudgetingApp {
-
-  private static final Scanner userInput = new Scanner(System.in);
+  /* Получаем текущую системную кодировку и передаём её в InputStreamReader,
+   * из которого будет читать Scanner
+   * Это нужно для правильного считывания кириллицы из консоли */
+  private static final String codePage = (String) System.getProperties().get("stdout.encoding");
+  private static final Charset charsetName = Charset.forName(codePage);
+  private static final Scanner userInput =
+      new Scanner(new InputStreamReader(System.in, charsetName));
 
   private static Menu currentMenu = null;
   private static User currentAppUser = null;

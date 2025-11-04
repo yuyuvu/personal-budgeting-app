@@ -1,24 +1,19 @@
-package com.github.yuyuvu.personalbudgetingapp.testdomainservices;
+package com.github.yuyuvu.personalbudgetingapp.unit.testdomainservices;
 
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
+import com.github.yuyuvu.personalbudgetingapp.domainservices.BudgetingService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.WalletOperationsService;
-import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Класс для тестов методов из WalletOperationsService */
+/** Класс для тестов методов из WalletOperationsService. */
 public class WalletOperationsServiceTest {
   Wallet wallet;
 
-  /** Подготавливаем пустой кошелёк перед каждым тестом */
+  /** Подготавливаем пустой кошелёк перед каждым тестом. */
   @BeforeEach
   void prepareNewWallet() {
     wallet = new Wallet(false);
@@ -26,7 +21,7 @@ public class WalletOperationsServiceTest {
 
   /**
    * Проверяем, что добавление дохода корректно влияет на баланс, сумму доходов, расходов и
-   * количество категорий
+   * количество категорий.
    */
   @Test
   void addIncomeTest() {
@@ -38,11 +33,21 @@ public class WalletOperationsServiceTest {
 
     Assertions.assertEquals(1, wallet.getWalletOperationsIncomeCategories().size());
     Assertions.assertEquals(0, wallet.getWalletOperationsExpensesCategories().size());
+
+    // Проверяем выброс ошибки при отрицательной или нулевой сумме
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> WalletOperationsService.addExpense(wallet, -5000, "зарплата", LocalDateTime.now()));
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> WalletOperationsService.addExpense(wallet, 0, "зарплата", LocalDateTime.now()));
+    Assertions.assertDoesNotThrow(
+        () -> WalletOperationsService.addExpense(wallet, 500, "зарплата", LocalDateTime.now()));
   }
 
   /**
    * Проверяем, что добавление расхода корректно влияет на баланс, сумму доходов, расходов и
-   * количество категорий
+   * количество категорий.
    */
   @Test
   void addExpenseTest() {
@@ -54,6 +59,16 @@ public class WalletOperationsServiceTest {
 
     Assertions.assertEquals(0, wallet.getWalletOperationsIncomeCategories().size());
     Assertions.assertEquals(1, wallet.getWalletOperationsExpensesCategories().size());
+
+    // Проверяем выброс ошибки при отрицательной или нулевой сумме
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> WalletOperationsService.addExpense(wallet, -5000, "бензин", LocalDateTime.now()));
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> WalletOperationsService.addExpense(wallet, 0, "бензин", LocalDateTime.now()));
+    Assertions.assertDoesNotThrow(
+        () -> WalletOperationsService.addExpense(wallet, 500, "бензин", LocalDateTime.now()));
   }
 
   /**
@@ -74,53 +89,147 @@ public class WalletOperationsServiceTest {
   }
 
   /**
-   * Проверяем, что метод создаёт расход у одного пользователя и доход на аналогичную сумму у
-   * другого пользователя. Метод должен работать в том числе после сохранений данных кошелька
-   * другого пользователя в файловую систему и загрузок данных из неё.
+   * Проверяем, что название для категорий дохода или расхода корректно изменяется. Вне зависимости
+   * от типа, количества добавленных операций или наличия разных категорий операций. Отдельно
+   * проверяем, что лимиты по расходам так же корректно изменяются.
    */
   @Test
-  void transferMoneyToAnotherUserTest() {
-    // Потенциальный текущий пользователь приложения.
-    User sender = new User("username1", new String[] {"hash", "salt"}, new Properties());
+  void changeNameForCategoryTest() {
+    // Добавим расходы
+    WalletOperationsService.addExpense(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 3200, "еда", LocalDateTime.now());
+    // Лишний расход
+    WalletOperationsService.addExpense(wallet, 9000, "бензин", LocalDateTime.now());
 
-    // Потенциальный уже имеющийся пользователь приложения, у которого есть файл кошелька.
-    // Имитируем наличие файла кошелька получателя и после этого тестируем нужный метод.
-    User recipient = new User("username2", new String[] {"hash", "salt"}, new Properties());
+    // Задаём бюджет
+    BudgetingService.addNewExpensesCategoryLimit(wallet, "еда", 5000);
+    Assertions.assertEquals(5000, BudgetingService.getLimitByCategory(wallet, "еда"));
+    // Лишний бюджет
+    BudgetingService.addNewExpensesCategoryLimit(wallet, "покупки", 6000);
 
-    // Никаких операций до теста нет
-    Assertions.assertEquals(0, sender.getWallet().getWalletOperations().size());
-    Assertions.assertEquals(0, recipient.getWallet().getWalletOperations().size());
+    // Добавим такие же доходы
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
 
-    User recipientAfterTransfer = null;
-    String pathWhereSaved;
-    try {
-      pathWhereSaved = DataPersistenceService.makeNewUserWalletFile(recipient.getUsername());
-      DataPersistenceService.saveUserdataToFile(recipient);
+    WalletOperationsService.changeNameForCategory(wallet, "еда", "траты", false);
+    // Проверяем, что это не повлияло на доходы
+    Assertions.assertEquals(3, wallet.getIncomeWalletOperations().size());
+    // Расходы остались расходами
+    Assertions.assertEquals(3, wallet.getExpensesWalletOperations().size());
+    // Нет расходов со старым названием
+    Assertions.assertTrue(
+        wallet.getExpensesWalletOperations().stream()
+            .noneMatch(wo -> wo.getCategory().equals("еда")));
+    // Расходов с новым названием ровно 2
+    Assertions.assertEquals(
+        2, WalletOperationsService.getWalletOperationsByCategories(wallet, false, "траты").size());
 
-      // Метод, который тестируется
-      WalletOperationsService.transferMoneyToAnotherUser(sender, recipient.getUsername(), 15000);
-      recipientAfterTransfer = DataPersistenceService.loadUserdataFromFile(recipient.getUsername());
+    // Бюджет изменился, старый удалён
+    Assertions.assertNull(wallet.getBudgetCategoriesAndLimits().get("еда"));
+    Assertions.assertEquals(5000, wallet.getBudgetCategoriesAndLimits().get("траты"));
+    // Не повлияло на другие бюджеты
+    Assertions.assertEquals(6000, wallet.getBudgetCategoriesAndLimits().get("покупки"));
 
-      // Удаляем ненужный временный файл после теста
-      Files.deleteIfExists(Path.of(pathWhereSaved));
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-    }
+    // Аналогично с доходами
+    WalletOperationsService.changeNameForCategory(wallet, "еда", "зарплата", true);
+    // Проверяем, что это не повлияло на расходы
+    Assertions.assertEquals(3, wallet.getExpensesWalletOperations().size());
+    // Доходы остались доходами
+    Assertions.assertEquals(3, wallet.getIncomeWalletOperations().size());
+    // Нет расходов со старым названием
+    Assertions.assertTrue(
+        wallet.getIncomeWalletOperations().stream()
+            .noneMatch(wo -> wo.getCategory().equals("еда")));
+    // Расходов с новым названием ровно 3
+    Assertions.assertEquals(
+        3,
+        WalletOperationsService.getWalletOperationsByCategories(wallet, true, "зарплата").size());
+  }
 
-    // Проверяем списание у текущего пользователя приложения.
-    ArrayList<Wallet.WalletOperation> senderOperations =
-        sender.getWallet().getExpensesWalletOperations();
-    Assertions.assertEquals(1, senderOperations.size());
-    Assertions.assertEquals(-15000, sender.getWallet().getBalance());
-    Assertions.assertFalse(senderOperations.get(0).isIncome());
+  /**
+   * Проверяем, что названия для категорий расходов корректно объединяются. Вне зависимости от типа,
+   * количества добавленных операций или наличия разных категорий операций. Бюджеты тоже
+   * объединяются.
+   */
+  @Test
+  void mergeExpensesCategoriesTest() {
+    // Добавим расходы
+    WalletOperationsService.addExpense(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 9000, "бензин", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 9000, "траты", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 9000, "подарки", LocalDateTime.now());
 
-    // Проверяем получение перевода у другого пользователя приложения
-    Assertions.assertNotNull(recipientAfterTransfer);
-    ArrayList<Wallet.WalletOperation> recipientOperations =
-        recipientAfterTransfer.getWallet().getIncomeWalletOperations();
-    Assertions.assertEquals(1, recipientOperations.size());
-    Assertions.assertEquals(15000, recipientAfterTransfer.getWallet().getBalance());
-    Assertions.assertTrue(recipientOperations.get(0).isIncome());
+    // Добавим доходы
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "зарплата", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "льгота", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "бонус", LocalDateTime.now());
+
+    // Добавим бюджеты
+    BudgetingService.addNewExpensesCategoryLimit(wallet, "еда", 2500);
+    BudgetingService.addNewExpensesCategoryLimit(wallet, "траты", 2500);
+    BudgetingService.addNewExpensesCategoryLimit(wallet, "подарки", 2500);
+
+    // Сумма расходов до и после
+    Assertions.assertEquals(6400, WalletOperationsService.getExpensesByCategory(wallet, "еда"));
+    WalletOperationsService.mergeExpensesCategories(
+        wallet, "необходимые траты", "еда", "бензин", "траты");
+    Assertions.assertEquals(
+        24400, WalletOperationsService.getExpensesByCategory(wallet, "необходимые траты"));
+    // Старых категорий нет
+    Assertions.assertEquals(0, WalletOperationsService.getExpensesByCategory(wallet, "еда"));
+    Assertions.assertTrue(
+        wallet.getWalletOperationsExpensesCategories().contains("необходимые траты"));
+    Assertions.assertFalse(wallet.getWalletOperationsExpensesCategories().contains("еда"));
+    Assertions.assertFalse(wallet.getWalletOperationsExpensesCategories().contains("бензин"));
+    Assertions.assertFalse(wallet.getWalletOperationsExpensesCategories().contains("траты"));
+    // На остальные операции не влияет
+    Assertions.assertEquals(6400, WalletOperationsService.getIncomeByCategory(wallet, "еда"));
+    Assertions.assertEquals(9000, WalletOperationsService.getExpensesByCategory(wallet, "подарки"));
+    // Бюджеты объединились
+    Assertions.assertEquals(
+        5000, BudgetingService.getLimitByCategories(wallet, true, "необходимые траты"));
+    Assertions.assertEquals(2500, BudgetingService.getLimitByCategories(wallet, true, "подарки"));
+    // Старых нет
+    Assertions.assertNull(wallet.getBudgetCategoriesAndLimits().get("еда"));
+    Assertions.assertNull(wallet.getBudgetCategoriesAndLimits().get("траты"));
+    Assertions.assertNull(wallet.getBudgetCategoriesAndLimits().get("бензин"));
+  }
+
+  /**
+   * Проверяем, что названия для категорий доходов корректно объединяются. Вне зависимости от типа,
+   * количества добавленных операций или наличия разных категорий операций.
+   */
+  @Test
+  void mergeIncomeCategoriesTest() {
+    // Добавим расходы
+    WalletOperationsService.addExpense(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addExpense(wallet, 9000, "бензин", LocalDateTime.now());
+
+    // Добавим доходы
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "еда", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "зарплата", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "льгота", LocalDateTime.now());
+    WalletOperationsService.addIncome(wallet, 3200, "бонус", LocalDateTime.now());
+
+    // Сумма до и после
+    Assertions.assertEquals(9600, WalletOperationsService.getIncomeByCategory(wallet, "еда"));
+    WalletOperationsService.mergeIncomeCategories(wallet, "зарплата", "еда", "зарплата", "льгота");
+    Assertions.assertEquals(16000, WalletOperationsService.getIncomeByCategory(wallet, "зарплата"));
+    // Старых категорий нет
+    Assertions.assertTrue(wallet.getWalletOperationsIncomeCategories().contains("зарплата"));
+    Assertions.assertFalse(wallet.getWalletOperationsIncomeCategories().contains("еда"));
+    Assertions.assertFalse(wallet.getWalletOperationsIncomeCategories().contains("льгота"));
+    // На остальные операции не влияет
+    Assertions.assertEquals(3200, WalletOperationsService.getIncomeByCategory(wallet, "бонус"));
+    Assertions.assertEquals(6400, WalletOperationsService.getExpensesByCategory(wallet, "еда"));
+    Assertions.assertEquals(9000, WalletOperationsService.getExpensesByCategory(wallet, "бензин"));
   }
 
   /**
