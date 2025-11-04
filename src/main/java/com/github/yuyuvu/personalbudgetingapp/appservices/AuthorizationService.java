@@ -4,6 +4,7 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.InvalidCredentialsException;
+import com.github.yuyuvu.personalbudgetingapp.infrastructure.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import java.io.IOException;
 import java.util.HashMap;

@@ -11,11 +11,11 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.skipLine;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.appservices.SnapshotsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.SnapshotException;
+import com.github.yuyuvu.personalbudgetingapp.infrastructure.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.io.IOException;

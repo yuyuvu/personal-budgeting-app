@@ -1,6 +1,6 @@
 package com.github.yuyuvu.personalbudgetingapp.domainservices;
 
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
+import com.github.yuyuvu.personalbudgetingapp.infrastructure.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.io.IOException;

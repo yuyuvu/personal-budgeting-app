@@ -1,8 +1,9 @@
-package com.github.yuyuvu.personalbudgetingapp.appservices;
+package com.github.yuyuvu.personalbudgetingapp.infrastructure;
 
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnGreen;
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.printlnRed;
 
+import com.github.yuyuvu.personalbudgetingapp.appservices.AuthorizationService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import java.io.FileReader;

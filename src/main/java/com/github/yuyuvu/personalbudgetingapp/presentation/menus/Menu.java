@@ -10,9 +10,9 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.s
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
 import com.github.yuyuvu.personalbudgetingapp.appservices.ConfigManager;
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.NotificationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
+import com.github.yuyuvu.personalbudgetingapp.infrastructure.DataPersistenceService;
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
@@ -163,29 +163,37 @@ public abstract class Menu {
                         бюджетов, наличия отрицательного баланса и при выполнении других
                         условий.
                         12) Отключать и возвращать отображение уведомлений.
-                        13) Авторизоваться в аккаунте после полного перезапуска приложения
-                        с сохранением всех данных пользователя.
+                        13) Авторизоваться в аккаунте и после выхода из аккаунта, и после полного
+                        перезапуска приложения с сохранением всех данных пользователя.
                         14) Регистрировать любое количество пользователей с разными данными.
                         ----------------------------------------------------------------------------""");
         throw new CancellationRequestedException();
       }
       case "--hide_notifications" -> {
-        if (ConfigManager.checkNotificationsConfigForCurrentUser()
-            .equals(ConfigManager.BooleanPropertiesValues.TRUE.name())) {
-          ConfigManager.reverseNotificationsConfigForCurrentUser();
-          printlnCyan("Теперь уведомления скрыты во всём приложении.");
+        if (PersonalBudgetingApp.getCurrentAppUser() != null) {
+          if (ConfigManager.checkNotificationsConfigForCurrentUser()
+              .equals(ConfigManager.BooleanPropertiesValues.TRUE.name())) {
+            ConfigManager.reverseNotificationsConfigForCurrentUser();
+            printlnCyan("Теперь уведомления скрыты во всём приложении.");
+          } else {
+            printlnCyan("Уведомления уже скрыты во всём приложении.");
+          }
         } else {
-          printlnCyan("Уведомления уже скрыты во всём приложении.");
+          printlnRed("Данную команду нельзя использовать без входа в аккаунт.");
         }
         throw new CancellationRequestedException();
       }
       case "--show_notifications" -> {
-        if (ConfigManager.checkNotificationsConfigForCurrentUser()
-            .equals(ConfigManager.BooleanPropertiesValues.FALSE.name())) {
-          ConfigManager.reverseNotificationsConfigForCurrentUser();
-          printlnCyan("Теперь уведомления снова будут отображаться во всём приложении.");
+        if (PersonalBudgetingApp.getCurrentAppUser() != null) {
+          if (ConfigManager.checkNotificationsConfigForCurrentUser()
+              .equals(ConfigManager.BooleanPropertiesValues.FALSE.name())) {
+            ConfigManager.reverseNotificationsConfigForCurrentUser();
+            printlnCyan("Теперь уведомления снова будут отображаться во всём приложении.");
+          } else {
+            printlnCyan("Уведомления уже отображаются во всём приложении.");
+          }
         } else {
-          printlnCyan("Уведомления уже отображаются во всём приложении.");
+          printlnRed("Данную команду нельзя использовать без входа в аккаунт.");
         }
         throw new CancellationRequestedException();
       }

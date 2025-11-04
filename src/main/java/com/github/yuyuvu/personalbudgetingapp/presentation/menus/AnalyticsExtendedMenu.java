@@ -13,10 +13,10 @@ import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.p
 import static com.github.yuyuvu.personalbudgetingapp.presentation.ColorPrinter.skipLine;
 
 import com.github.yuyuvu.personalbudgetingapp.PersonalBudgetingApp;
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.AnalyticsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CancellationRequestedException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
+import com.github.yuyuvu.personalbudgetingapp.infrastructure.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.io.IOException;
 import java.time.LocalDateTime;

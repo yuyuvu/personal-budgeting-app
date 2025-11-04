@@ -1,11 +1,11 @@
 package com.github.yuyuvu.personalbudgetingapp.integration;
 
-import com.github.yuyuvu.personalbudgetingapp.appservices.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.appservices.SnapshotsService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.BudgetingService;
 import com.github.yuyuvu.personalbudgetingapp.domainservices.WalletOperationsService;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.CheckedIllegalArgumentException;
 import com.github.yuyuvu.personalbudgetingapp.exceptions.SnapshotException;
+import com.github.yuyuvu.personalbudgetingapp.infrastructure.DataPersistenceService;
 import com.github.yuyuvu.personalbudgetingapp.model.User;
 import com.github.yuyuvu.personalbudgetingapp.model.Wallet;
 import java.io.IOException;
